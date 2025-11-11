@@ -21,6 +21,8 @@ class Admin_Repo:
         return admin
     def get_admin(self,email:str):
          return self.db.query(Admin).filter(Admin.Email==email).first()  
+    def get_admin_by_id(self, id:int):
+        return self.db.query(Admin).filter(Admin.id==id).first()
   
      
         
