@@ -23,3 +23,25 @@ class Admin_login(BaseModel):
     password:str    
 
 
+class UserResponse(BaseModel):
+    id: int
+    name: str
+    Email: EmailStr
+    Moblile_Number: int 
+
+    class Config:
+        from_attributes = True  
+class AdminResponse(BaseModel):
+    name: str
+    Email: EmailStr
+    Moblile_Number: int
+    Goverment_ID: int
+    Id_proof_path: str
+    GST_Number: int
+    is_superuser: bool
+
+    class Config:
+        from_attributes = True
+
+
+        
