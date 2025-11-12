@@ -14,7 +14,7 @@ class user_repository:
             Password=user_data["password"]
         )
 
-        self.db.add(new_user)      # add model object
+        self.db.add(new_user)    
         self.db.commit()           # commit changes
         self.db.refresh(new_user)  # 
         return new_user 
