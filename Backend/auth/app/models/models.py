@@ -4,7 +4,7 @@ from app.models.database import Base
 class user(Base):
     __tablename__="users"
     id=Column(Integer,primary_key=True,index=True)
-    name=Column(String,unique=True,index=True)
+    name=Column(String,index=True)
     Email=Column(String,unique=True,index=True)
     Moblile_Number=Column(Integer,unique=True,index=True)
     Password=Column(String, nullable=False)
@@ -13,7 +13,7 @@ class user(Base):
 class Admin(Base):
     __tablename__="admins"
     id=Column(Integer,primary_key=True,index=True)
-    name=Column(String,unique=True,index=True)
+    name=Column(String,index=True)
     Email=Column(String,unique=True,index=True)
     Moblile_Number=Column(Integer,unique=True,index=True)
     Goverment_ID=Column(Integer,unique=True,index=True)
