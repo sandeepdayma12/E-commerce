@@ -32,14 +32,13 @@ class UserResponse(BaseModel):
     class Config:
         from_attributes = True  
 class AdminResponse(BaseModel):
+    id: int
     name: str
     Email: EmailStr
     Moblile_Number: int
-    Goverment_ID: int
-    Id_proof_path: str
-    GST_Number: int
+    Goverment_ID: Optional[int] = None
+    GST_Number: Optional[int] = None
     is_superuser: bool
-
     class Config:
         from_attributes = True
 
