@@ -41,6 +41,9 @@ class AdminResponse(BaseModel):
     is_superuser: bool
     class Config:
         from_attributes = True
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"        
 
 
         

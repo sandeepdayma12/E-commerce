@@ -32,7 +32,8 @@ class Adminservice(Authservice):
         if not verify_password(password, admin.Password):
             return {"message": "Invalid password."}
         
-        token = create_access_token({"sub": admin.Email, "role": "admin"})
+    
+        token = create_access_token(user_id=str(admin.id), role="admin")
         return {
             "message": "Login successful.",
             "access_token": token,
