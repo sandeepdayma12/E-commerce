@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.Repository.admin_repo import Admin_Repo
 from app.Repository.user_repo import user_repository
@@ -37,10 +37,15 @@ def register_admin(payload: Admins, db: Session = Depends(get_db)):
     svc = Adminservice(db)
     result = svc.register(payload.dict())
 
-    if "message" in result and "exists" in result["message"].lower():
-        return {"message": result["message"]}
+    # ✅ Check only if result is a dict
+    if isinstance(result, dict) and "message" in result and "exists" in result["message"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=result["message"]
+        )
 
-    return {"message": "Admin created successfully."}
+    return result
+
 
 
 # ---------------- USER LOGIN ----------------
