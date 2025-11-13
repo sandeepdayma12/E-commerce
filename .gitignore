@@ -1,0 +1,73 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+# ---- Virtual Environment ----
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+.venv/
+
+
+# ---- FastAPI / Uvicorn ----
+*.log
+*.pid
+*.sqlite3
+*.db
+
+# ---- Alembic ----
+alembic/versions/*.pyc
+alembic/versions/__pycache__/
+# optional: ignore generated migration files if you don’t want to track them
+# alembic/versions/
+
+# ---- Environment Variables ----
+.env
+.env.*
+
+# ---- IDE / Editor ----
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# ---- OS Files ----
+.DS_Store
+Thumbs.db
+
+# ---- Build / Distribution ----
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# ---- Test / Coverage ----
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+
+# ---- Jupyter / IPython ----
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+
+# ---- Logs ----
+logs/
+*.log
+
+# ---- Docker ----
+*.pid
+*.sock
+docker-compose.override.yml
