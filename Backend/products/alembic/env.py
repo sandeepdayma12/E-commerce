@@ -18,15 +18,8 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-<<<<<<< HEAD:Backend/cart/alembic/env.py
-# target_metadata = None
 from app.models.models import Base
 target_metadata = Base.metadata
-
-=======
-from app.models.models import Base
-target_metadata = Base.metadata
->>>>>>> a7c78271f51163a86519956e7fb1d034fa9c0d28:Backend/auth/alembic/env.py
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
