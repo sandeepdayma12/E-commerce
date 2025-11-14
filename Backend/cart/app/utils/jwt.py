@@ -6,7 +6,7 @@ import os
 # --- Load Config ---
 SECRET_KEY = "a_super_secret_key_that_must_be_identical_in_all_services"
 ALGORITHM = "HS256"
-AUTH_SERVICE_LOGIN_URL = "http://127.0.0.1:8000/user/login"
+AUTH_SERVICE_LOGIN_URL = "http://127.0.0.1:8003/user/login"
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=AUTH_SERVICE_LOGIN_URL)
 
