@@ -122,3 +122,9 @@ def admin_profile(
         GST_Number=admin.GST_Number,
         is_superuser=admin.is_superuser,
     )
+@router.post("/debug/decode-token", tags=["Debugging"])
+def decode_token_endpoint(token: str):
+    payload = verify_token(token)
+    
+    # If verify_token succeeds, just return the payload
+    return payload
