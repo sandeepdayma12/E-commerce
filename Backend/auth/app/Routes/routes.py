@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status,Form
 from sqlalchemy.orm import Session
 from app.Repository.admin_repo import Admin_Repo
 from app.Repository.user_repo import user_repository
@@ -10,6 +10,7 @@ from app.models.schemas import (
     Admin_login,
     UserResponse,
     AdminResponse,
+    TokenResponse
 )
 from app.services.user_service import user_service
 from app.services.admin_service import Adminservice
@@ -49,16 +50,24 @@ def register_admin(payload: Admins, db: Session = Depends(get_db)):
 
 
 # ---------------- USER LOGIN ----------------
+# In your Auth Service router
 @router.post("/user/login", status_code=200)
-def login_user(payload: User_login, db: Session = Depends(get_db)):
+def login_user(
+    # Use the variable name 'username' to directly match the form field.
+    username: str = Form(...), 
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    """
+    Handles user login using form data from Swagger UI.
+    """
     svc = user_service(db)
-    result = svc.login(**payload.dict())
-
-    if "message" in result and "Invalid" in result["message"]:
-        return {"message": result["message"]}
-
+    
+    # IMPORTANT: The service layer expects a parameter named 'email'.
+    # So, we pass the 'username' variable to the 'email' parameter.
+    result = svc.login(email=username, password=password)
+    
     return result
-
 
 # ---------------- ADMIN LOGIN ----------------
 @router.post("/admin/login", status_code=200)

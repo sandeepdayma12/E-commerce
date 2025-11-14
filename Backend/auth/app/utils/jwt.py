@@ -1,18 +1,18 @@
 from datetime import timedelta, timezone,datetime
 from jose import JWTError, jwt
 from fastapi import HTTPException,status
-secret_key="12klkmj"
+SECRET_KEY = "a_super_secret_key_that_must_be_identical_in_all_services"
 algorithm="HS256"
-access_token_expire_minutes=2
+access_token_expire_minutes=30
 def create_access_token(data:dict):
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(minutes=access_token_expire_minutes)
     to_encode.update({"exp": expire})
-    token = jwt.encode(to_encode, secret_key, algorithm=algorithm)
+    token = jwt.encode(to_encode, SECRET_KEY, algorithm=algorithm)
     return token
 def verify_token(token:str):
     try:
-        pyload=jwt.decode(token, secret_key,algorithms=["HS256"])
+        pyload=jwt.decode(token, SECRET_KEY,algorithms=["HS256"])
         return pyload
     except JWTError:
          raise HTTPException(
