@@ -1,22 +1,26 @@
-from abc import abstractmethod,ABC
-from sqlalchemy.orm import session
+# In app/Respository/Base_repo.py
+from abc import ABC, abstractmethod
+
 class Base_Repo(ABC):
-    def __init__(self,db:session):
-        self.db=db
+    def __init__(self, db):
+        self.db = db
+
     @abstractmethod
-    def create_cart(self,user_id:int):
-        pass
-    @abstractmethod
-    def add_item_to_cart(self, product_id:int, user_id:int ,quantity:int ):
-        pass
-    @abstractmethod
-    def update_item_to_quantity(self, product_id:int,quantity:int,cart:'Cart'):
-        pass
-    @abstractmethod
-    def delete_item_to_cart(self, product_id:int,cart:'Cart'):
-        pass
-    @abstractmethod
-    def clear_cart(self, cart:'Cart'):
+    def get_or_create_cart(self, user_id: str):
         pass
 
-        
+    @abstractmethod
+    def add_item_to_cart(self, cart: 'Cart', product_id: int, quantity: int):
+        pass
+
+    @abstractmethod
+    def update_item_quantity(self, cart: 'Cart', product_id: int, new_quantity: int):
+        pass
+
+    @abstractmethod
+    def delete_item_to_cart(self, cart: 'Cart', product_id: int):
+        pass
+
+    @abstractmethod
+    def clear_cart(self, cart: 'Cart'):
+        pass
