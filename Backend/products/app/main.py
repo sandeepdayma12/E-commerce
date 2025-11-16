@@ -7,7 +7,7 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="E-Commerce Product Service")
 
-app.include_router(product_router, prefix="/products", tags=["Products"])
+app.include_router(product_router)
 app.include_router(category_router, prefix="/categories", tags=["Categories"])
 
 @app.get("/")

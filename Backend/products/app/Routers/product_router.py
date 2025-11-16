@@ -34,7 +34,7 @@ def delete_product(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=result["error"])
     # return a simple confirmation or the service result if it provides more info
     return {"detail": "product deleted"} if result is None else result
-@product_router.get("api/product/get/{id}")
+@product_router.get("/api/product/get/{id}")
 def get_product(id: int, db: Session = Depends(get_db)):
     svc=ProductService(db)
     result=svc.get_product(id)
