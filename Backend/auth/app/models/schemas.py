@@ -4,7 +4,7 @@ from typing import Optional
 class Users(BaseModel):
     name:str
     email: EmailStr
-    mobile_number: int
+    mobile_number: str
     password: str
 class User_login(BaseModel):
     email:EmailStr
@@ -13,10 +13,10 @@ class User_login(BaseModel):
 class Admins(BaseModel):
     name:str
     email: EmailStr
-    mobile_number: int
-    goverment_id: int
+    mobile_number: str
+    goverment_id: Optional[str] = None
     id_number: str
-    gst_number: int
+    gst_number: str
     password: str
 class Admin_login(BaseModel):
     Email:EmailStr
@@ -27,7 +27,7 @@ class UserResponse(BaseModel):
     id: int
     name: str
     Email: EmailStr
-    Moblile_Number: int 
+    Moblile_Number: str 
 
     class Config:
         from_attributes = True  
@@ -35,9 +35,9 @@ class AdminResponse(BaseModel):
     id: int
     name: str
     Email: EmailStr
-    Moblile_Number: int
-    Goverment_ID: Optional[int] = None
-    GST_Number: Optional[int] = None
+    Moblile_Number: str
+    Goverment_ID: Optional[str] = None
+    GST_Number: Optional[str] = None
     is_superuser: bool
     class Config:
         from_attributes = True
