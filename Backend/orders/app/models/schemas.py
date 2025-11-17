@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import List
 from datetime import datetime
-from app.models.models.models import OrderStatus # Import the enum from your models
+from app.models.models import OrderStatus # Import the enum from your models
 
 class OrderItemCreate(BaseModel):
     product_id: int

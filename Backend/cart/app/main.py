@@ -27,6 +27,8 @@ app.add_middleware(
 )
 
 app.include_router(router)
+# router = APIRouter(prefix="/cart")
+
 
 @app.get("/", tags=["Health Check"])
 def read_root():

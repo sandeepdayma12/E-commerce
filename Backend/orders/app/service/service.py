@@ -29,59 +29,138 @@ PRODUCT_SERVICE_URL = os.getenv("PRODUCT_SERVICE_URL")
 class Order_Service:
     def __init__(self, db: Session):
         self.repo = order_repository(db)
+        self.db = db
 
-    def create_order(self, user_id: str, order_data: OrderCreateRequest) -> Order:
+    def create_order(self, user_id: str, order_data) -> Order:
         """
-        Orchestrates the creation of a new order.
-        1. Calls the Product Service to get authoritative product details.
-        2. Calculates the total amount.
-        3. Creates the Order and OrderItem objects.
-        4. Calls the repository to save them to the database.
+        Robust create_order:
+         - reads cart_items from order_data
+         - fetches product snapshot from product service
+         - validates presence of shipping/billing/payment
+         - creates Order first, then OrderItems
         """
-        product_ids = [item.product_id for item in order_data.cart_items]
-        
-        # --- 1. Inter-Service Communication ---
+
+        # --- 0. Defensive reads for fields (avoid AttributeError) ---
+        # support both pydantic attributes and dict-style payloads
+        data_dict = getattr(order_data, "dict", lambda: {})()
+        if callable(data_dict):
+            data_dict = order_data.dict()
+        # fallback: if above fails, try __dict__
+        if not isinstance(data_dict, dict):
+            data_dict = getattr(order_data, "__dict__", {}) or {}
+
+        cart_items = data_dict.get("cart_items") or data_dict.get("items") or []
+        # normalize list of simple dicts -> pydantic objects assumed earlier, so handle both
+        if cart_items is None:
+            cart_items = []
+
+        # Ensure there is at least one cart item
+        if not isinstance(cart_items, list) or len(cart_items) == 0:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="cart_items is required and must be a non-empty list.")
+
+        # shipping / billing / payment retrieval (defensive)
+        shipping_address = data_dict.get("shipping_address") or data_dict.get("shipping") or None
+        billing_address = data_dict.get("billing_address") or data_dict.get("billing") or None
+    
+        shipping_method = data_dict.get("shipping_method") or data_dict.get("shippingMethod") or None
+
+        # if billing missing, fallback to shipping (common pattern)
+        if billing_address is None and shipping_address is not None:
+            billing_address = shipping_address
+
+        # Validate required addresses/payment
+        if shipping_address is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="shipping_address is required.")
+        if billing_address is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="billing_address is required (or provide shipping_address to fallback).")
+
+
+        # --- 1. Inter-Service: fetch products snapshot ---
+        product_ids = [ci.get("product_id") if isinstance(ci, dict) else getattr(ci, "product_id", None)
+                       for ci in cart_items]
+        # filter None
+        product_ids = [pid for pid in product_ids if pid]
+
         try:
-            response = requests.post(
-                f"{PRODUCT_SERVICE_URL}/api/v1/products/batch-details",
-                json={"ids": product_ids}
+            # Note: GET with JSON body is non-standard; many servers ignore body for GET.
+            # Prefer POST or pass ids as query param. We'll try POST if GET fails often.
+            response = requests.get(
+                f"{PRODUCT_SERVICE_URL}/api/get_products/",
+                json={"ids": product_ids},
+                timeout=5
             )
-            response.raise_for_status() # Raise an exception for bad status codes (4xx or 5xx)
-            product_details_map = {p["id"]: p for p in response.json()}
+            response.raise_for_status()
+            products = response.json()
+            product_details_map = {str(p["id"]): p for p in products}
         except requests.RequestException as e:
-            # This handles network errors or if the Product Service is down
-            raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=f"Product Service is unavailable: {e}")
+            # try fallback GET (query param) before failing
+            try:
+                q = ",".join(product_ids)
+                response = requests.get(f"{PRODUCT_SERVICE_URL}/api/get_products/?ids={q}", timeout=5)
+                response.raise_for_status()
+                products = response.json()
+                product_details_map = {str(p["id"]): p for p in products}
+            except requests.RequestException:
+                raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                                    detail=f"Product Service is unavailable: {e}")
 
-        # --- 2. Business Logic: Calculation and Snapshotting ---
-        order_items_to_create = []
-        total_amount = 0
-        
-        for item in order_data.cart_items:
-            product = product_details_map.get(item.product_id)
+        # --- 2. Build OrderItem instances + total ---
+        order_items_list = []
+        total_amount = 0.0
+
+        for ci in cart_items:
+            # support dict or pydantic-like object
+            pid = ci.get("product_id") if isinstance(ci, dict) else getattr(ci, "product_id", None)
+            qty = ci.get("quantity") if isinstance(ci, dict) else getattr(ci, "quantity", None)
+
+            if pid is None or qty is None:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                    detail="Each cart item must have product_id and quantity.")
+
+            product = product_details_map.get(str(pid))
             if not product:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Product with id {item.product_id} not found.")
-            
-            # Create OrderItem objects with snapshotted data
-            order_item = OrderItem(
-                product_id=item.product_id,
-                quantity=item.quantity,
-                product_name=product["name"],
-                price_at_purchase=float(product["price"])
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                    detail=f"Product with id {pid} not found.")
+
+            price = float(product.get("price", 0.0))
+            name = product.get("name", "") or (ci.get("product_name") if isinstance(ci, dict) else getattr(ci, "product_name", ""))
+
+            oi = OrderItem(
+                product_id=str(pid),
+                product_name=name,
+                quantity=int(qty),
+                price_at_purchase=price,
+                image_url=product.get("image_url")
             )
-            order_items_to_create.append(order_item)
-            total_amount += item.quantity * float(product["price"])
-            
-        # --- 3. Prepare the main Order object ---
+            order_items_list.append(oi)
+            total_amount += int(qty) * price
+
+        # --- 3. Create Order WITHOUT passing 'items' keyword ---
         new_order = Order(
             user_id=user_id,
             total_amount=total_amount,
-            shipping_address=order_data.shipping_address.dict(),
-            items=order_items_to_create  # SQLAlchemy will handle creating the items
+            shipping_address=shipping_address,
+            billing_address=billing_address,
+            shipping_method=shipping_method
         )
-        
-        # --- 4. Call the repository to save to the database ---
-        return self.repo.create_order(order=new_order)
 
+        # Persist order first
+        self.db.add(new_order)
+        self.db.commit()
+        self.db.refresh(new_order)
+
+        # --- 4. Attach order items (set order_id) ---
+        for oi in order_items_list:
+            oi.order_id = new_order.id
+            self.db.add(oi)
+
+        self.db.commit()
+        self.db.refresh(new_order)
+
+        return new_order
     def get_order(self, order_id: int, user_id: str) -> Order:
         """
         Gets a single order, ensuring the user is authorized to view it.
