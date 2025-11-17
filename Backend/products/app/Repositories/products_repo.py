@@ -68,3 +68,24 @@ class ProductRepo(Base_Repo):
             self.db.commit()
             return True
         return False
+    def search_products(self, category: str = None, tags: list[str] = None) -> list[Product]:
+        """
+        Dynamically searches for products based on category and tags.
+        """
+        query = self.db.query(Product)
+        filters = []
+
+        if category:
+            # Assumes category is a tag for simplicity.
+            # You could have a separate 'category' column as well.
+            filters.append(Product.tags.contains([category]))
+        
+        if tags:
+            # This ensures the product must have ALL the tags in the list
+            for tag in tags:
+                filters.append(Product.tags.contains([tag]))
+
+        if filters:
+            query = query.filter(and_(*filters))
+
+        return query.all()

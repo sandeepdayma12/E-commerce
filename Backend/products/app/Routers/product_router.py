@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status,Body
 from sqlalchemy.orm import Session
 from app.models.db import get_db
 from app.Services.product_service import ProductService
@@ -6,7 +6,10 @@ from app.models.schemas import ProductResponse,ProductBase, ProductCreate, Produ
 from fastapi import UploadFile,File
 from typing import List
 from app.Repositories.products_repo import ProductRepo
+import app.Services.ai_service as ai_service        
 product_router=APIRouter()
+def get_product_repo(db: Session = Depends(get_db)):
+    return ProductRepo(db)
 @product_router.post("/", response_model=ProductResponse)
 def create_product(
     payload: ProductCreate = Depends(),
@@ -53,4 +56,33 @@ def update_product(
     if isinstance(result, dict) and "error" in result:
         raise HTTPException(status_code=400, detail=result["error"])
     return result
+
+@product_router.post("/ai-search/")
+def ai_product_search(
+    query: str = Body(..., embed=True),
+    repo: ProductRepo = Depends(get_product_repo)
+):
+    """
+    Accepts a natural language query, uses GenAI to parse it,
+    and returns matching products.
+    """
+    if not query:
+        raise HTTPException(status_code=400, detail="Query cannot be empty.")
+
+    try:
+        # 1. Call the AI service to get structured criteria
+        search_criteria = ai_service.parse_shopping_query(user_query=query)
+
+        # 2. Use the repository to search the database
+        products = repo.search_products(
+            category=search_criteria.get("category"),
+            tags=search_criteria.get("tags")
+        )
+        
+        return products
+        
+    except ConnectionError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An internal error occurred: {str(e)}")
 

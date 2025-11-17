@@ -26,6 +26,7 @@ class Product(Base):
     category_id = Column(Integer, ForeignKey("categories.id")) 
     is_active = Column(Boolean, default=True)
     image_path=Column(JSON,nullable=True)
+    tags=Column(JSON,nullable=True)
 
     
     category = relationship("Category", back_populates="products")

@@ -18,3 +18,5 @@ class Base_Repo(ABC):
     @abstractmethod
     def delete(self, id:int):
         pass  
+    
+        
