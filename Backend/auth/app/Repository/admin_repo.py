@@ -9,7 +9,7 @@ class Admin_Repo:
             Email=admin_data["email"],
             Moblile_Number=admin_data["Moblile_Number"],
             Goverment_ID=admin_data["Goverment_ID"],
-            Id_proof_path=admin_data["Id_proof_path"],
+            Id_Number=admin_data["Id_Number"],
             GST_Number=admin_data["GST_Number"],
             Password=admin_data["Password"],
             is_superuser=True

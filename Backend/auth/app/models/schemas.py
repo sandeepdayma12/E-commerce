@@ -15,7 +15,7 @@ class Admins(BaseModel):
     email: EmailStr
     mobile_number: int
     goverment_id: int
-    id_proof_path: str
+    id_number: str
     gst_number: int
     password: str
 class Admin_login(BaseModel):
