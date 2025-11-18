@@ -2,18 +2,17 @@ import streamlit as st
 import requests
 import os
 import pandas as pd
-from jose import jwt, JWTError # You need jose for role decoding
+from jose import jwt, JWTError
 
 # ====================================================================
 # CONFIGURATION
 # ====================================================================
 AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "http://127.0.0.1:8000")
-PRODUCT_SERVICE_URL = os.getenv("PRODUCT_SERVICE_URL", "http://127.0.0.1:8001")
+PRODUCT_SERVICE_URL = os.getenv("PRODUCT_SERVICE_URL", "http://192.168.29.249:8001")
 CART_SERVICE_URL = os.getenv("CART_SERVICE_URL", "http://127.0.0.1:8002")
 
 # We need the secret key to decode the token locally to check the role
-# IMPORTANT: This should be loaded from an environment variable in a real app
-SECRET_KEY = "a_super_secret_key_that_must_be_identical_in_all_services" 
+SECRET_KEY = os.getenv("SECRET_KEY", "a_super_secret_key_that_must_be_identical_in_all_services")
 
 # ====================================================================
 # SESSION STATE INITIALIZATION
@@ -36,8 +35,6 @@ def get_auth_header():
 def decode_token_role(token):
     """Decodes the JWT to find the user's role."""
     try:
-        # We only need to decode, not verify the signature fully, to get the role
-        # but for security, it's better to verify.
         payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
         return payload.get("role")
     except JWTError:
@@ -46,10 +43,9 @@ def decode_token_role(token):
 def fetch_products():
     """Calls the Product Service to get a list of all products."""
     try:
-        response = requests.get(f"{PRODUCT_SERVICE_URL}/api/get_products/")
+        response = requests.get(f"{PRODUCT_SERVICE_URL}/api/get_products")
         if response.status_code == 200:
             st.session_state.products = response.json()
-            st.toast("Products refreshed!")
         else:
             st.error(f"Failed to fetch products: {response.status_code} - {response.text}")
             st.session_state.products = []
@@ -67,9 +63,9 @@ def add_product_to_cart(product_id: int, quantity: int):
     try:
         response = requests.post(f"{CART_SERVICE_URL}/cart/items", headers=headers, json=item_payload)
         if response.status_code == 200:
-            st.toast(f"✅ Product {product_id} added to cart!")
+            st.toast(f"✅ Added to cart!")
         else:
-            st.error(f"Failed to add item {product_id}: {response.status_code}")
+            st.error(f"Failed to add item: {response.status_code}")
             st.json(response.json())
     except requests.RequestException as e:
         st.error(f"Network error adding to cart: {e}")
@@ -112,6 +108,11 @@ else:
 # ====================================================================
 st.title("E-commerce Microservice Tester")
 
+# Fetch products on first load
+if 'products_fetched' not in st.session_state:
+    fetch_products()
+    st.session_state.products_fetched = True
+
 tabs_to_show = ["📦 Products", "🛒 My Cart"]
 if st.session_state.user_role == 'admin':
     tabs_to_show.append("🛠️ Product Management")
@@ -126,20 +127,29 @@ with tabs[0]:
     
     if not st.session_state.products:
         st.info("No products found. Click 'Refresh Products List' to fetch them.")
-        if 'products_fetched' not in st.session_state:
-            fetch_products()
-            st.session_state.products_fetched = True
-            st.rerun()
     else:
         for product in st.session_state.products:
-            col1, col2, col3 = st.columns([3, 1, 1.5])
+            col1, col2 = st.columns([1, 3])
             with col1:
-                st.subheader(product.get("name", "N/A"))
-                st.caption(f"ID: {product.get('id')} | Price: ${product.get('price', 0.0)}")
+                # *** IMAGE DISPLAY ADDED HERE ***
+                if product.get("image_paths") and len(product["image_paths"]) > 0:
+                    # Construct the full URL for the image
+                    image_url = f"{PRODUCT_SERVICE_URL}{product['image_paths'][0]}"
+                    st.image(image_url, caption=product.get("name"), use_column_width=True)
+                else:
+                    st.caption("No Image")
+            
             with col2:
-                quantity = st.number_input("Qty", min_value=1, step=1, key=f"qty_{product.get('id')}", label_visibility="collapsed")
-            with col3:
-                st.button("Add to Cart", key=f"add_{product.get('id')}", on_click=add_product_to_cart, args=(product.get('id'), quantity))
+                st.subheader(product.get("name", "N/A"))
+                st.write(f"**Price:** ${product.get('price', 0.0):,.2f}")
+                st.caption(product.get("description", ""))
+                
+                # Input for quantity and add to cart button
+                inner_col1, inner_col2 = st.columns([1, 2])
+                with inner_col1:
+                    quantity = st.number_input("Qty", min_value=1, step=1, key=f"qty_{product.get('id')}", label_visibility="collapsed")
+                with inner_col2:
+                    st.button("Add to Cart", key=f"add_{product.get('id')}", on_click=add_product_to_cart, args=(product.get('id'), quantity))
             st.divider()
 
 # --- Cart Tab (for logged-in users) ---
@@ -157,6 +167,7 @@ with tabs[1]:
                     if cart_data.get('items'):
                         df = pd.DataFrame(cart_data['items'])
                         st.dataframe(df)
+                        st.metric("Total Price", f"${cart_data.get('total_price', 0.0):,.2f}")
                     else:
                         st.info("Your cart is empty.")
                 else:
@@ -178,20 +189,39 @@ if st.session_state.user_role == 'admin':
             quantity = st.number_input("Quantity in Stock", min_value=0, step=1)
             description = st.text_area("Description")
             category_id = st.number_input("Category ID", min_value=1, step=1)
+            
+            # *** FILE UPLOADER ADDED HERE ***
+            uploaded_files = st.file_uploader(
+                "Upload Product Images", 
+                accept_multiple_files=True, 
+                type=['png', 'jpg', 'jpeg']
+            )
+            
             create_button = st.form_submit_button("Create Product")
 
             if create_button:
                 headers = get_auth_header()
+                # Prepare form data
                 product_data = {
                     "name": name, "price": price, "quantity": quantity,
                     "description": description, "category_id": category_id
                 }
-                # Your create endpoint is at the root ("/")
-                response = requests.post(f"{PRODUCT_SERVICE_URL}/", headers=headers, data=product_data)
+                
+                # *** PREPARE FILES FOR MULTIPART UPLOAD ***
+                # The key 'images' must match the FastAPI endpoint parameter
+                files_to_upload = [('images', (file.name, file, file.type)) for file in uploaded_files]
+                
+                # Send a multipart/form-data request
+                response = requests.post(
+                    f"{PRODUCT_SERVICE_URL}/api/create_product/", 
+                    headers=headers, 
+                    data=product_data,
+                    files=files_to_upload
+                )
 
-                if response.status_code == 201:
+                if response.status_code == 200: # Your endpoint returns 200
                     st.success("Product created successfully!")
-                    fetch_products()
+                    fetch_products() # Refresh list to show the new product
                 else:
                     st.error(f"Failed to create product: {response.status_code}")
                     st.json(response.json())
@@ -201,17 +231,17 @@ if st.session_state.user_role == 'admin':
         # --- Delete a Product ---
         st.subheader("Delete a Product")
         if st.session_state.products:
-            product_options = {p['name']: p['id'] for p in st.session_state.products}
+            product_options = {f"{p['name']} (ID: {p['id']})": p['id'] for p in st.session_state.products}
             product_to_delete_name = st.selectbox("Select product to delete", product_options.keys())
             
             if st.button("Delete Selected Product", type="primary"):
                 product_to_delete_id = product_options[product_to_delete_name]
                 headers = get_auth_header()
-                # Your delete endpoint is '/api/delete_product/{id}'
                 response = requests.delete(f"{PRODUCT_SERVICE_URL}/api/delete_product/{product_to_delete_id}", headers=headers)
                 if response.status_code == 200:
                     st.success(f"Product '{product_to_delete_name}' deleted!")
                     fetch_products() # Refresh the list
+                    st.rerun()
                 else:
                     st.error(f"Failed to delete product: {response.status_code}")
                     st.json(response.json())

@@ -1,4 +1,4 @@
-#!/home/developer/Desktop/E-commerce/venv/bin/python3.10
+#!/home/developer/Desktop/E-commerce/Backend/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

@@ -42,25 +42,33 @@ class ProductRepo(Base_Repo):
     def get_all(self):
         return self.db.query(Product).all()
 
+  
     def update(self, id: int, data: dict, images: List[UploadFile] = None):
         product = self.db.query(Product).filter(Product.id == id).first()
         if not product:
             return None
 
-        # Handle new image uploads (append to old ones)
-        if images:
-            existing_images = json.loads(product.image_path or "[]")
-            new_images = self._save_images(images)
-            all_images = existing_images + new_images
-            data["image_paths"] = json.dumps(all_images)
+        # FIX: Convert double-encoded JSON string → list
+        if isinstance(product.image_path, str):
+            try:
+                existing_images = json.loads(product.image_path)
+            except Exception:
+                existing_images = []
+        else:
+            existing_images = product.image_path or []
 
+        # Add new images
+        if images:
+            new_images = self._save_images(images)
+            data["image_path"] = existing_images + new_images
+
+        # Update all other fields
         for key, value in data.items():
             setattr(product, key, value)
 
         self.db.commit()
         self.db.refresh(product)
         return product
-
     def delete(self, id: int):
         product = self.db.query(Product).filter(Product.id == id).first()
         if product:

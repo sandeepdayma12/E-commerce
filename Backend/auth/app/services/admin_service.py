@@ -16,7 +16,7 @@ class Adminservice(Authservice):
             "email": admin_data["email"],
             "Moblile_Number": admin_data["mobile_number"],
             "Goverment_ID": admin_data["goverment_id"],
-            "Id_proof_path": admin_data["id_proof_path"],
+            "Id_Number": admin_data["Id_Number"],
             "GST_Number": admin_data["gst_number"],
             "Password": hashed_password(admin_data["password"]),
             "is_superuser": True

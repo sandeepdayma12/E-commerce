@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr,Field
 from typing import Optional
 
 class Users(BaseModel):
@@ -15,7 +15,7 @@ class Admins(BaseModel):
     email: EmailStr
     mobile_number: str
     goverment_id: Optional[str] = None
-    id_number: str
+    Id_Number: str=Field(..., alias="id_number")
     gst_number: str
     password: str
 class Admin_login(BaseModel):

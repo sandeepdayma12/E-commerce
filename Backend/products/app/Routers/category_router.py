@@ -46,7 +46,7 @@ def delete_category(id:int, db:Session=Depends(get_db)):
             message=result["error"]
         )
     return {"message":f"product is delete for the {id}"}
-@category_router.put("/api/update_product/{id}",response_model=Categoryupdate)
+@category_router.put("/api/update_category/{id}",response_model=Categoryupdate)
 def update_product(id:int,
                    payload:Categoryupdate,
                    db:Session=Depends(get_db)):

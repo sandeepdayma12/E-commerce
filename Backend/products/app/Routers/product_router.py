@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status,Form
 from sqlalchemy.orm import Session
 from app.models.db import get_db
 from app.Services.product_service import ProductService
@@ -7,14 +7,27 @@ from fastapi import UploadFile,File
 from typing import List
 from app.Repositories.products_repo import ProductRepo
 product_router=APIRouter()
-@product_router.post("/", response_model=ProductResponse)
+@product_router.post("/api/create_product/", response_model=ProductResponse)
 def create_product(
-    payload: ProductCreate = Depends(),
+    name: str = Form(...),
+    price: float = Form(...),
+    quantity: int = Form(...),
+    description: str = Form(...),
+    category_id: int = Form(...),
     images: List[UploadFile] = File(None),
     db: Session = Depends(get_db)
 ):
+    payload = {
+        "name": name,
+        "price": price,
+        "quantity": quantity,
+        "description": description,
+        "category_id": category_id
+    }
+
     svc = ProductService(db)
-    result = svc.create(payload.dict(), images)
+    result = svc.create(payload, images)
+
     if isinstance(result, dict) and "error" in result:
         raise HTTPException(status_code=400, detail=result["error"])
 
@@ -41,16 +54,36 @@ def get_product(id: int, db: Session = Depends(get_db)):
     if isinstance(result, dict) and "error" in result:
         raise HTTPException(status_code=400, detail=result["error"])
     return result
-@product_router.put("/api/update_product/{id}", response_model=ProductUpdate)
+
+@product_router.put("/api/update_product/{id}")
 def update_product(
     id: int,
-    payload: ProductUpdate = Depends(),
+    name: str = Form(...),
+    price: float = Form(...),
+    quantity: int = Form(...),
+    description: str = Form(...),
+    category_id: int = Form(...),
+    is_active: bool = Form(...),
     images: List[UploadFile] = File(None),
     db: Session = Depends(get_db)
 ):
+
+    payload = {
+        "name": name,
+        "price": price,
+        "quantity": quantity,
+        "description": description,
+        "category_id": category_id,
+        "is_active": is_active
+    }
+
     svc = ProductService(db)
-    result = svc.update(id, payload.dict(), images)
-    if isinstance(result, dict) and "error" in result:
-        raise HTTPException(status_code=400, detail=result["error"])
-    return result
+    result = svc.update(id, payload, images)
+
+    if not result:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    return {"message": "Product Updated", "data": result}
+
+
 
