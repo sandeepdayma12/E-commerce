@@ -16,7 +16,7 @@ class user_service(Authservice):
         data_to_save = {
             "name": data["name"],
             "email": data["email"],
-            "mobile_number": data["mobile_number"],
+            "mobile_number":data["mobile_number"],
             "password": hashed_password(data["password"]),
         }
         
