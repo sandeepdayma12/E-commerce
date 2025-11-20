@@ -13,9 +13,6 @@ class Cart_Service(Base_Service):
 
     def add_item_to_cart(self, product_id: int, user_id: str, quantity: int) -> Cart:
         cart = self.repo.get_or_create_cart(user_id=user_id)
-        # The method name in the service is 'add_item_to_cart', so the call should be to
-        # a method with a matching name on the repo for clarity.
-        # But your current call is to `self.repo.add_item`. Let's fix that.
         updated_cart = self.repo.add_item_to_cart( # <-- FIX THE CALL
             cart=cart, 
             product_id=product_id, 

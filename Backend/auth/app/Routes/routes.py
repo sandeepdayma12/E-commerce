@@ -24,6 +24,7 @@ router = APIRouter()
 def register_user(payload: Users, db: Session = Depends(get_db)):
     svc = user_service(db)
     result = svc.register(payload.dict())
+    print("Received payload:", payload.dict())
 
     # If the service returns an error message
     if "message" in result and "exists" in result["message"].lower():
@@ -62,7 +63,7 @@ def login_user(
     Handles user login using form data from Swagger UI.
     """
     svc = user_service(db)
-    
+   
     # IMPORTANT: The service layer expects a parameter named 'email'.
     # So, we pass the 'username' variable to the 'email' parameter.
     result = svc.login(email=username, password=password)
@@ -97,7 +98,7 @@ def user_profile(
         id=user.id,
         name=user.name,
         Email=user.Email,
-        Moblile_Number=user.Moblile_Number,
+        Mobile_Number=user.Mobile_Number,
     )
 
 
@@ -117,7 +118,7 @@ def admin_profile(
         id=admin.id,
         name=admin.name,
         Email=admin.Email,
-        Moblile_Number=admin.Moblile_Number,
+        Mobile_Number=admin.Mobile_Number,
         Goverment_ID=admin.Goverment_ID,
         GST_Number=admin.GST_Number,
         is_superuser=admin.is_superuser,

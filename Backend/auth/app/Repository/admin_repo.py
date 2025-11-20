@@ -7,7 +7,7 @@ class Admin_Repo:
         admin = Admin(
             name=admin_data["name"],
             Email=admin_data["email"],
-            Moblile_Number=admin_data["Moblile_Number"],
+            Mobile_Number=admin_data["Mobile_Number"],
             Goverment_ID=admin_data["Goverment_ID"],
             Id_Number=admin_data["Id_Number"],
             GST_Number=admin_data["GST_Number"],

@@ -8,12 +8,11 @@ class user_repository:
     
     def create_user(self, user_data: dict):
         new_user = user(
-            name=user_data["name"],
-            Email=user_data["email"],
-            Moblile_Number=user_data["mobile_number"],
-            Password=user_data["password"]
+            name=user_data.get("name"),
+            Email=user_data.get("email"),
+            Mobile_Number=user_data.get("mobile_number"),
+            Password=user_data.get("password"),
         )
-
         self.db.add(new_user)    
         self.db.commit()           # commit changes
         self.db.refresh(new_user)  # 

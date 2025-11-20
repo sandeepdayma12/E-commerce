@@ -14,7 +14,7 @@ class Adminservice(Authservice):
         admin = {
             "name": admin_data["name"],
             "email": admin_data["email"],
-            "Moblile_Number": admin_data["mobile_number"],
+            "Mobile_Number": admin_data["mobile_number"],
             "Goverment_ID": admin_data["goverment_id"],
             "Id_Number": admin_data["Id_Number"],
             "GST_Number": admin_data["gst_number"],

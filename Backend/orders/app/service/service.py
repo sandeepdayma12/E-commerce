@@ -3,8 +3,8 @@ import requests
 from typing import List
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-
-# --- Project Imports ---
+from dotenv import load_dotenv
+load_dotenv()
 
 # The Repository for database access
 from app.Respository.order_repo import order_repository
