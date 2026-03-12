@@ -1,0 +1,196 @@
+.dashboard {
+  padding: 10px;
+  font-family: "Poppins", sans-serif;
+}
+
+.title {
+  margin-bottom: 25px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #2d3e50;
+}
+
+/* TOP CARDS */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.card {
+  background: white;
+  padding: 22px;
+  border-radius: 15px;
+  text-align: center;
+  color: #2d3e50;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
+  transition: 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
+}
+
+.card h3 {
+  margin-top: 12px;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.card p {
+  font-size: 26px;
+  font-weight: 600;
+}
+
+/* Icons inside cards */
+.icon-box {
+  font-size: 35px;
+  padding: 15px;
+  background: rgba(255,255,255,0.7);
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Color Themes */
+.card-users { background: linear-gradient(135deg, #c0d4ff, #e1e9ff); }
+.card-orders { background: linear-gradient(135deg, #ffd6a5, #ffe8cc); }
+.card-revenue { background: linear-gradient(135deg, #d4fbd4, #e8ffe8); }
+.card-products { background: linear-gradient(135deg, #f8d1dd, #ffe3eb); }
+
+/* MINI CARDS */
+.grid-3 {
+  margin-top: 25px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.mini-card {
+  background: white;
+  padding: 18px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  transition: 0.3s ease;
+}
+
+.mini-card:hover {
+  transform: translateY(-3px);
+}
+
+.mini-card h4 {
+  font-size: 16px;
+  color: #444;
+}
+
+.mini-card p {
+  font-size: 22px;
+  font-weight: 700;
+  margin-top: 5px;
+}
+
+/* CHART + ORDERS GRID */
+.grid-2 {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* CHART BOX */
+.chart-box {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+}
+
+.chart-placeholder {
+  height: 280px;
+  background: #eef1f9;
+  border-radius: 10px;
+  margin-top: 15px;
+}
+
+/* TABLE */
+.orders-box {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+}
+
+table {
+  width: 100%;
+  margin-top: 15px;
+  border-collapse: collapse;
+}
+
+table th {
+  text-align: left;
+  padding: 10px;
+  background: #f5f7ff;
+  border-bottom: 2px solid #e0e6f0;
+}
+
+table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+/* STATUS BADGES */
+.status {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: white;
+}
+
+.delivered { background: #2ecc71; }
+.pending { background: #f1c40f; }
+.shipped { background: #3498db; }
+
+/* BOTTOM BOXES */
+.info-box {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+}
+
+.low-stock {
+  border-left: 4px solid #ff5252;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-3 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}

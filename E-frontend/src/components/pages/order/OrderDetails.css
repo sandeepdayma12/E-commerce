@@ -1,0 +1,412 @@
+/* OrderDetailsSimple.css */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --text: #1a1a1a;
+  --text-light: #666;
+  --border: #e0e0e0;
+  --bg: #fafafa;
+  --card: #ffffff;
+  --accent: #2563eb;
+  --success: #16a34a;
+  --warning: #ea580c;
+  --danger: #dc2626;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+/* ==================
+   LOADING & ERROR
+   ================== */
+.simple-loading,
+.simple-error {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.simple-error h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.simple-error button {
+  padding: 0.75rem 1.5rem;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+/* ==================
+   LAYOUT
+   ================== */
+.simple-order-page {
+  min-height: 100vh;
+  background: var(--bg);
+  padding: 2rem 1rem;
+}
+
+.simple-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* ==================
+   HEADER
+   ================== */
+.simple-header {
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  display: inline-block;
+  color: var(--text-light);
+  text-decoration: none;
+  font-size: 0.9375rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: var(--text);
+}
+
+.header-info h1 {
+  font-size: 1.875rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text);
+}
+
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.order-date {
+  color: var(--text-light);
+  font-size: 0.9375rem;
+}
+
+.simple-status {
+  display: inline-block;
+  padding: 0.375rem 0.875rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.simple-status.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.simple-status.processing {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.simple-status.shipped {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.simple-status.delivered,
+.simple-status.completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.simple-status.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* ==================
+   CONTENT GRID
+   ================== */
+.simple-content {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 1.5rem;
+}
+
+/* ==================
+   CARD
+   ================== */
+.simple-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.simple-card h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  color: var(--text);
+}
+
+.simple-card h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-light);
+  margin-bottom: 0.75rem;
+}
+
+/* ==================
+   INFO LIST
+   ================== */
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.info-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.info-item span {
+  color: var(--text-light);
+  font-size: 0.9375rem;
+}
+
+.info-item strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.info-item .tracking {
+  font-family: 'Courier New', monospace;
+  color: var(--accent);
+  font-size: 0.875rem;
+}
+
+/* ==================
+   ADDRESS
+   ================== */
+.address-group {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1.5rem;
+}
+
+.divider {
+  width: 1px;
+  background: var(--border);
+}
+
+.address-block p {
+  font-size: 0.9375rem;
+  color: var(--text-light);
+  margin-bottom: 0.25rem;
+}
+
+.address-block .name {
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+/* ==================
+   SUMMARY
+   ================== */
+.summary-list {
+  margin-bottom: 1.25rem;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  font-size: 0.9375rem;
+  color: var(--text-light);
+}
+
+.summary-item .free {
+  color: var(--success);
+  font-weight: 500;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 2px solid var(--border);
+  font-size: 1rem;
+}
+
+.summary-total strong {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ==================
+   PAYMENT INFO
+   ================== */
+.payment-info {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.payment-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+}
+
+.payment-row span:first-child {
+  color: var(--text-light);
+}
+
+.payment-row span:last-child {
+  color: var(--text);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.payment-badge {
+  background: #dcfce7;
+  color: var(--success);
+  padding: 0.25rem 0.625rem;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+/* ==================
+   CUSTOMER
+   ================== */
+.customer-id {
+  font-size: 0.9375rem;
+  color: var(--text-light);
+  word-break: break-all;
+}
+
+/* ==================
+   CANCEL BUTTON
+   ================== */
+.cancel-button {
+  width: 100%;
+  padding: 0.875rem;
+  background: var(--card);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-button:hover {
+  background: var(--danger);
+  color: white;
+}
+
+/* ==================
+   RESPONSIVE
+   ================== */
+@media (max-width: 768px) {
+  .simple-content {
+    grid-template-columns: 1fr;
+  }
+
+  .simple-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .address-group {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+  }
+
+  .simple-card {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .simple-order-page {
+    padding: 1rem 0.75rem;
+  }
+
+  .simple-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .header-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .summary-total strong {
+    font-size: 1.25rem;
+  }
+}

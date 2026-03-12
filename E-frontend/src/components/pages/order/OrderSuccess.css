@@ -1,0 +1,211 @@
+/* ---------- SUCCESS PAGE ---------- */
+.success-page {
+  min-height: 100vh;
+  background: #f5f7fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: "Poppins", sans-serif;
+}
+
+.success-container {
+  background: white;
+  border-radius: 16px;
+  padding: 50px 40px;
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* ---------- SUCCESS ICON ---------- */
+.icon-wrapper {
+  margin-bottom: 25px;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+}
+
+.circle {
+  stroke: #667eea;
+  stroke-width: 2;
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.check {
+  stroke: #667eea;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+}
+
+@keyframes stroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ---------- TEXT ---------- */
+.success-container h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 8px 0;
+}
+
+.success-container p {
+  font-size: 16px;
+  color: #666;
+  margin: 0 0 30px 0;
+}
+
+/* ---------- ORDER INFO ---------- */
+.order-info {
+  background: #f8f9fa;
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-label {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 16px;
+  color: #667eea;
+  font-weight: 700;
+}
+
+/* ---------- AMOUNT PAID ---------- */
+.amount-paid {
+  padding: 15px 0;
+  margin-bottom: 30px;
+  border-top: 2px solid #f0f0f0;
+  border-bottom: 2px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.amount-paid span {
+  font-size: 15px;
+  color: #666;
+}
+
+.amount-paid strong {
+  font-size: 24px;
+  color: #333;
+  font-weight: 700;
+}
+
+/* ---------- BUTTONS ---------- */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn-primary,
+.btn-secondary {
+  width: 100%;
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+}
+
+.btn-secondary:hover {
+  background: #f0f4ff;
+  transform: translateY(-2px);
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 640px) {
+  .success-container {
+    padding: 40px 30px;
+  }
+
+  .success-icon {
+    width: 70px;
+    height: 70px;
+  }
+
+  .success-container h1 {
+    font-size: 24px;
+  }
+
+  .success-container p {
+    font-size: 15px;
+  }
+
+  .amount-paid strong {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .success-page {
+    padding: 15px;
+  }
+
+  .success-container {
+    padding: 35px 25px;
+  }
+
+  .success-icon {
+    width: 65px;
+    height: 65px;
+  }
+
+  .success-container h1 {
+    font-size: 22px;
+  }
+
+  .order-info {
+    padding: 12px 16px;
+  }
+
+  .info-label,
+  .info-value {
+    font-size: 14px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+}

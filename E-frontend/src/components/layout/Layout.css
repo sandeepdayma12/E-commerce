@@ -1,0 +1,23 @@
+/* 🌐 Layout Wrapper */
+.layout-content {
+  min-height: calc(100vh - 180px); /* leaves space for navbar + footer */
+  padding: 0px 20px;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+/* Ensure content doesn’t touch edges */
+.layout-content > * {
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* 📱 Responsive adjustments */
+@media (max-width: 768px) {
+  .layout-content {
+    padding: 20px 10px;
+  }
+}

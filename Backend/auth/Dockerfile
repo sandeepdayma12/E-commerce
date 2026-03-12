@@ -1,0 +1,16 @@
+# Start with lightweight Python
+FROM python:3.11-slim
+
+# Set working directory inside container
+WORKDIR /app
+
+# Copy requirements and install
+COPY requirment.txt .
+RUN pip install --no-cache-dir -r requirment.txt
+
+# Copy the code
+COPY . .
+
+# Run the app
+# Notice: Host is 0.0.0.0 (required for Docker)
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]

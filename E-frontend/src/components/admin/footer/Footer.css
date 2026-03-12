@@ -1,0 +1,18 @@
+.admin-footer {
+  width: 100%;
+  background: #ffffff;
+  padding: 15px 20px;
+  text-align: center;
+  border-top: 1px solid #e5e5e5;
+  font-size: 14px;
+  color: #666;
+  position: relative;
+  bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .admin-footer {
+    padding: 10px;
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,88 @@
+version: '3.3'
+
+services:
+  # ---------------------------------------------------
+  # 1. AUTH SERVICE
+  # ---------------------------------------------------
+  auth_service:
+    build: ./auth
+    container_name: auth_container
+    environment:
+      - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/ecommerce_db
+    depends_on:
+      - ecommerce_db
+    ports:
+      - "8001:80"      
+
+  # ---------------------------------------------------
+  # 2. CART SERVICE
+  # ---------------------------------------------------
+  cart_service:
+    build: ./cart
+    container_name: cart_container
+    environment:
+      - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/carts
+    depends_on:
+      - ecommerce_db
+    ports:
+      - "8002:81"   
+
+  # ---------------------------------------------------
+  # 4. ORDER SERVICE
+  # ---------------------------------------------------
+  order_service:
+    build: ./orders
+    container_name: order_container
+    environment:
+      - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/orders_db
+    depends_on:
+      - ecommerce_db
+    ports:
+      - "8003:82"  # <--- FIXED: Added space after the hyphen
+
+  # ---------------------------------------------------
+  # 5. PAYMENT SERVICE
+  # ---------------------------------------------------
+  payment_service:
+    build: ./payment
+    container_name: payment_container
+    environment:
+      - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/payments
+    depends_on:
+      - ecommerce_db
+    ports:
+      - "8004:84"        
+
+  # ---------------------------------------------------
+  # 3. PRODUCT SERVICE
+  # ---------------------------------------------------
+  product_service:
+    build: ./products
+    container_name: product_container
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/product_service
+    depends_on:
+      - ecommerce_db
+    ports:
+      - "8005:85" 
+
+  # ---------------------------------------------------
+  # DATABASE (E-Commerce)
+  # ---------------------------------------------------
+  ecommerce_db:
+    image: pgvector/pgvector:pg15
+    container_name: ecommerce_postgres
+    environment:
+      POSTGRES_USER: sandeep
+      POSTGRES_PASSWORD: sandeep
+      POSTGRES_DB: ecommerce_db   
+    ports:
+      - "5435:5432"
+    volumes:
+      - ecommerce_data:/var/lib/postgresql/data
+      - ./init-db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+
+volumes:
+  ecommerce_data:

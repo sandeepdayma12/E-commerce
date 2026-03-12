@@ -1,0 +1,165 @@
+.vendor-dashboard {
+  padding: 15px 20px;
+  font-family: "Poppins", sans-serif;
+}
+
+.title {
+  font-size: 28px;
+  margin-bottom: 18px;
+  font-weight: 700;
+  color: #2d3e50;
+}
+
+/* TOP CARDS */
+.vendor-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.v-card {
+  background: #ffffff;
+  border-radius: 15px;
+  padding: 22px;
+  text-align: center;
+  color: #2a2a3c;
+  box-shadow: 0 3px 18px rgba(0,0,0,0.08);
+  transition: 0.3s;
+}
+
+.v-card:hover {
+  transform: translateY(-4px);
+}
+
+.v-card h4 {
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+.v-card p {
+  margin-top: 5px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.v-icon {
+  font-size: 32px;
+  background: rgba(255,255,255,0.7);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Card Colors */
+.v-products { background: linear-gradient(135deg, #ffdce5, #ffe8ef); }
+.v-orders { background: linear-gradient(135deg, #d8eaff, #e7f2ff); }
+.v-pending { background: linear-gradient(135deg, #fff3cd, #fff7df); }
+.v-revenue { background: linear-gradient(135deg, #d4f9d4, #ecffee); }
+
+/* GRAPH SECTION */
+.sub-title {
+  margin-top: 30px;
+  margin-bottom: 12px;
+  font-size: 20px;
+  color: #2a2a3c;
+}
+
+.vendor-graphs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.graph-card {
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 3px 18px rgba(0,0,0,0.08);
+}
+
+.graph-placeholder {
+  height: 260px;
+  background: #eef3ff;
+  border-radius: 12px;
+  margin-top: 12px;
+}
+
+/* TOP PRODUCTS */
+.vendor-top-products {
+  margin-top: 15px;
+}
+
+.top-product {
+  background: white;
+  padding: 14px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* LOW STOCK */
+.vendor-low-stock {
+  margin-top: 10px;
+}
+
+.low-box {
+  padding: 14px;
+  background: #fff4f4;
+  border-left: 4px solid #ff5252;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* TABLE */
+.vendor-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.vendor-table th {
+  background: #f5f7ff;
+  padding: 12px;
+  border-bottom: 2px solid #e0e6f0;
+}
+
+.vendor-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+/* STATUS BADGES */
+.status {
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: white;
+}
+
+.delivered { background: #2ecc71; }
+.pending { background: #f1c40f; }
+.shipped { background: #3498db; }
+
+
+@media (max-width: 900px) {
+  .vendor-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .vendor-graphs {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .vendor-cards {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,17 @@
+version: '3.3'
+
+services:
+  frontend:
+    build: .
+    container_name: frontend_container
+    ports:
+      - "3000:80"
+    environment:
+      # These URLs are used by the browser to find your backend services
+      # Since backends are on the same machine, we use localhost
+      - VITE_AUTH_API=http://localhost:8001
+      - VITE_CART_API=http://localhost:8002
+      - VITE_ORDER_API=http://localhost:8003
+      - VITE_PAYMENT_API=http://localhost:8004
+      - VITE_PRODUCT_API=http://localhost:8005
+    restart: always
