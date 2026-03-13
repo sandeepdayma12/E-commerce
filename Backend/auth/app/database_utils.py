@@ -50,4 +50,4 @@ def create_auth_db_if_not_exists():
             time.sleep(3) # Wait 3 seconds before next attempt
 
 if __name__ == "__main__":
-    create_auth_db_if_not_exists()vc
+    create_auth_db_if_not_exists()

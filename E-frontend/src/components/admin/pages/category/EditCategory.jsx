@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import "./EditCategory.css";
+import {
+  getCategoryService,
+  updateCategoryService,
+} from "../../../../services/categories.service";
 
 function EditCategory() {
   const { id } = useParams();
@@ -13,14 +16,12 @@ function EditCategory() {
   });
 
   useEffect(() => {
-    axios
-      .get(`http://192.168.29.249:8001/categories/api/get_category/${id}`)
-      .then((res) => {
-        setFormData({
-          category: res.data.category,
-          description: res.data.description,
-        });
+    getCategoryService(id).then((data) => {
+      setFormData({
+        category: data.category,
+        description: data.description,
       });
+    });
   }, [id]);
 
   const handleChange = (e) => {
@@ -30,10 +31,7 @@ function EditCategory() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await axios.put(
-      `http://192.168.29.249:8001/categories/api/update_category/${id}`,
-      formData
-    );
+    await updateCategoryService(id, formData);
 
     navigate("/admin/categoryList");
   };

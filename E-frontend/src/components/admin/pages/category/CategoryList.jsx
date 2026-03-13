@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import "./CategoryList.css";
 import { Link } from "react-router-dom";
+import {
+  getCategoriesService,
+  deleteCategoryService,
+} from "../../../../services/categories.service";
 
 function CategoryList() {
   const [categories, setCategories] = useState([]);
@@ -11,8 +14,8 @@ function CategoryList() {
   const itemsPerPage = 6;
 
   const loadData = async () => {
-    const res = await axios.get("http://192.168.29.249:8001/categories/api/get_categories");
-    setCategories(res.data);
+    const data = await getCategoriesService();
+    setCategories(data);
   };
 
   useEffect(() => {
@@ -22,7 +25,7 @@ function CategoryList() {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure to delete this category?")) return;
 
-    await axios.delete(`http://192.168.29.249:8001/categories/api/delete_category/${id}`);
+    await deleteCategoryService(id);
     loadData();
   };
 

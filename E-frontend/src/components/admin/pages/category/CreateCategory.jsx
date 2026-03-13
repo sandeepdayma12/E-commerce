@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./CreateCategory.css";
+import { createCategoryService } from "../../../../services/categories.service";
 
 function CreateCategory() {
   const navigate = useNavigate();
@@ -39,10 +39,7 @@ function CreateCategory() {
     try {
       setLoading(true);
 
-      await axios.post(
-        "http://192.168.29.249:8001/categories/api/create_category",
-        formData
-      );
+      await createCategoryService(formData);
 
       navigate("/admin/categoryList");  
     } catch (err) {
