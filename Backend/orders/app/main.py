@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from app.Router.router import router
 from fastapi.middleware.cors import CORSMiddleware
+from .database_utils import create_order_db_if_not_exists
+create_order_db_if_not_exists()
 app = FastAPI()
 
 app.include_router(router)
