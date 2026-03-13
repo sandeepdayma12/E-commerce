@@ -5,7 +5,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import declarative_base, relationship
 
-Base = declarative_base()
+from app.models.database import Base 
+
 
 class OrderStatus(enum.Enum):
     PENDING = "PENDING"
