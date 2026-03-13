@@ -20,19 +20,25 @@ def create_payment_intent_endpoint(
     payment_data: Paymentintentcreate,
     db: Session = Depends(get_db)
 ):
+    print(f"Received payment_data: {payment_data}")  # Debug log
     try:
         service = PaymentService(db)
-        return service.create_payment_intent(payment_data)
-    except stripe.StripeError as e:
+        result = service.create_payment_intent(payment_data)
+        print(f"Payment intent created successfully: {result}")
+        return result
+    except stripe.error.StripeError as e:
+        print(f"StripeError details: {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Stripe error: {e.user_message}"
+            detail=f"Stripe error: {str(e)}"
         )
     except Exception as e:
-        print(f"An unexpected error occurred in create_payment_intent: {e}")
+        print(f"Unexpected error in create_payment_intent: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An internal server error occurred."
+            detail=f"Internal error: {str(e)}"
         )
 
 @router.post("/webhook")

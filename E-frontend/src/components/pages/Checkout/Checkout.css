@@ -193,6 +193,27 @@
   color: #333;
 }
 
+/* ---------- PAYMENT ---------- */
+.card-input {
+  border: 2px solid #e5e5e5;
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.card-input:focus-within {
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.payment-error {
+  margin-top: 10px;
+  color: #e74c3c;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 /* ---------- COMPLETE BUTTON ---------- */
 .complete-btn {
   width: 100%;

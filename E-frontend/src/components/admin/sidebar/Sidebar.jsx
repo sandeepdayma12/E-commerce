@@ -45,7 +45,7 @@ function Sidebar() {
 
           {openProduct && (
             <ul className="submenu">
-              <li><Link to="/admin/addProduct">Create Product</Link></li>
+              <li><Link to="/admin/createProduct">Create Product</Link></li>
               <li><Link to="/admin/productList">Product List</Link></li>
              
             </ul>

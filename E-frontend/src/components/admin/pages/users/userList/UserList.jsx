@@ -1,5 +1,5 @@
 import React from "react";
-import "./OrderList.css";
+import "./UserList.css";
 import { Link } from "react-router-dom";
 import { FaSearch, FaBell,FaUser} from "react-icons/fa";
 function UserList() {
@@ -43,12 +43,12 @@ function UserList() {
         </thead>
 
         <tbody>
-          {users.map((o) => (
-            <tr key={o.id}>
-              <td>{o.product}</td>
-              <td>{o.OrderId}</td>
-              <td>{o.Price}</td>
-               <td>{o.Quantity}</td>
+          {users.map((o, index) => (
+            <tr key={o.id || o.OrderId || index}>
+              <td>{o.product || o.Fullname || "—"}</td>
+              <td>{o.OrderId || "—"}</td>
+              <td>{o.Price ?? "—"}</td>
+              <td>{o.Quantity ?? "—"}</td>
               
             </tr>
           ))}

@@ -27,9 +27,11 @@ export default function ProductDetails() {
 
   if (!product) return <h2 className="not-found">Product Not Found 😕</h2>;
 
-  const images = product.image_path.map(
-    (img) => `${API_BASE_URL}/${img.replace(/^\/+/, "")}`
-  );
+  const imagePaths = Array.isArray(product.image_path) ? product.image_path : [];
+  const images =
+    imagePaths.length > 0
+      ? imagePaths.map((img) => `${API_BASE_URL}/${img.replace(/^\/+/, "")}`)
+      : ["/placeholder.png"];
 
   // Add to cart → cart redirect
   const handleAddToCart = () => {
@@ -78,7 +80,7 @@ export default function ProductDetails() {
           <div className="main-image-wrapper">
             <img
               className="main-image"
-              src={images[selectedImage]}
+              src={images[selectedImage] || images[0]}
               alt={product.name}
             />
           </div>

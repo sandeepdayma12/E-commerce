@@ -64,17 +64,19 @@ export default function OrderHistory() {
                   <small>Order</small>
                   <strong>#{order.id}</strong>
                 </div>
-                <div className={`order-status ${order.status.toLowerCase()}`}>
-                  {order.status}
+                <div className={`order-status ${(order.status || "unknown").toLowerCase()}`}>
+                  {order.status || "Unknown"}
                 </div>
               </div>
 
               <div className="box-date">
-                {new Date(order.created_at).toLocaleDateString("en-IN", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                })}
+                {order.created_at
+                  ? new Date(order.created_at).toLocaleDateString("en-IN", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : "—"}
               </div>
 
               <div className="box-items">

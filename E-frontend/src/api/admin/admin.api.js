@@ -1,5 +1,5 @@
-import {authAPI} from "../instances";
+import { adminAPI } from "../instances";
 
 export const adminRegisterAPI = (data) => {
-  return authAPI.post("/admin/register", data);
+  return adminAPI.post("/admin/register", data);
 };

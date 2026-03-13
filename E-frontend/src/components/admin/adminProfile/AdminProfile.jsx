@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { authAPI } from "../../../api/instances";
+import { adminAPI } from "../../../api/instances";
 import { AdminContext } from "../../../context/AdminContext";
 import "./AdminProfile.css";
 
@@ -18,14 +18,14 @@ export default function AdminProfile() {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("adminToken");
 
     if (!token) {
       setLoading(false);
       return;
     }
 
-    authAPI
+    adminAPI
       .get(`/api/admin_profile?token=${token}`)
       .then((res) => {
         const data = res.data;

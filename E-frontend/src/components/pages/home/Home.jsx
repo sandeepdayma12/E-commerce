@@ -27,7 +27,7 @@ function Home() {
     title: p.name,
     price: p.price,
     category: p.category?.category,
-    img: p.image_path[0]
+    img: p.image_path?.[0]
       ? `${API_BASE_URL}/${p.image_path[0].replace(/^\/+/, "")}`
       : "/placeholder.png",
     description: p.description,

@@ -35,7 +35,7 @@ export default function Cart() {
   if (cart.length === 0) {
     return (
       <div className="empty-cart">
-        <div className="empty-icon"><i class="ri-shopping-cart-2-fill"></i></div>
+        <div className="empty-icon"><i className="ri-shopping-cart-2-fill"></i></div>
         <h2>Your cart is empty</h2>
         <p>Looks like you haven't added anything to your cart yet</p>
         <button className="shop-now-btn" onClick={() => navigate("/shop")}>

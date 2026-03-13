@@ -13,4 +13,5 @@ COPY . .
 
 # Run the app
 # Notice: Host is 0.0.0.0 (required for Docker)
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "84"]
+# Match docker-compose port mapping (8004:84)
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "84", "--reload"]

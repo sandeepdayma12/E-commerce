@@ -6,8 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { OrderService } from "../../../services/orderService";
 import "./Checkout.css";
 
-export default function Checkout() {
-  const { cart, clearCart } = useContext(CartContext);
+function Checkout() {
+  const { cart } = useContext(CartContext);
   const { isLoggedIn, user } = useContext(AuthContext);
   const { showToast } = useContext(ToastContext);
   const navigate = useNavigate();
@@ -44,28 +44,28 @@ export default function Checkout() {
 
   // Validate fields
   const validateForm = () => {
-  const { name, mobile, address, city, pincode } = formData;
+    const { name, mobile, address, city, pincode } = formData;
 
-  if (!name || !mobile || !address || !city || !pincode) {
-    showToast("⚠️ Please fill all details");
-    return false;
-  }
+    if (!name || !mobile || !address || !city || !pincode) {
+      showToast("⚠️ Please fill all details");
+      return false;
+    }
 
-  if (mobile.length !== 10 || !/^\d+$/.test(mobile)) {
-    showToast("⚠️ Mobile number must be 10 digits (numbers only)");
-    return false;
-  }
+    if (mobile.length !== 10 || !/^\d+$/.test(mobile)) {
+      showToast("⚠️ Mobile number must be 10 digits (numbers only)");
+      return false;
+    }
 
-  if (pincode.length !== 6 || !/^\d+$/.test(pincode)) {
-    showToast("⚠️ Pincode must be 6 digits (numbers only)");
-    return false;
-  }
+    if (pincode.length !== 6 || !/^\d+$/.test(pincode)) {
+      showToast("⚠️ Pincode must be 6 digits (numbers only)");
+      return false;
+    }
 
-  return true;
-};
+    return true;
+  };
 
 
-  // Submit order
+  // Submit order, then move to payment page
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
@@ -86,16 +86,27 @@ export default function Checkout() {
       };
 
       const result = await OrderService.createOrder(payload);
+      const currentOrderId = result?.id;
 
-      showToast("✅ Order placed successfully!");
+      if (!currentOrderId) {
+        showToast("❌ Order could not be created. Please try again.");
+        return;
+      }
 
-      clearCart();
+      const pendingPayment = {
+        orderId: currentOrderId,
+        total,
+        billing: {
+          name: formData.name,
+          email: user?.email || user?.Email || "",
+          phone: formData.mobile,
+        },
+      };
 
-      navigate("/order-success", {
-        state: { orderId: result?.id, total },
-      });
+      sessionStorage.setItem("pending_payment", JSON.stringify(pendingPayment));
+      navigate("/payment", { state: pendingPayment });
     } catch (error) {
-      showToast("❌ Failed to place order. Try again.");
+      showToast("❌ Order could not be created. Try again.");
     } finally {
       setLoading(false);
     }
@@ -200,10 +211,10 @@ export default function Checkout() {
             disabled={loading}
           >
             {loading ? (
-              "Processing..."
+              "Creating Order..."
             ) : (
               <>
-                <span>Complete Order</span>
+                <span>Proceed to Payment</span>
                 <span className="btn-amount">₹{total}</span>
               </>
             )}
@@ -214,3 +225,5 @@ export default function Checkout() {
     </div>
   );
 }
+
+export default Checkout;

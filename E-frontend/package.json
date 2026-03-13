@@ -12,6 +12,8 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.10.1",
     "@remixicon/react": "^4.7.0",
+    "@stripe/react-stripe-js": "^3.2.0",
+    "@stripe/stripe-js": "^5.4.0",
     "axios": "^1.13.2",
     "dotenv": "^17.2.3",
     "react": "^19.1.1",

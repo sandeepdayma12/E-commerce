@@ -18,7 +18,7 @@ export const loginService = async ({ username, password }) => {
       };
     }
 
-    localStorage.setItem("token", token);
+    localStorage.setItem("userToken", token);
 
     return { success: true, token, data: res.data };
 

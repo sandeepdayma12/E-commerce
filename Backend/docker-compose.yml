@@ -35,6 +35,7 @@ services:
     container_name: order_container
     environment:
       - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/orders_db
+      - PRODUCT_SERVICE_URL=http://product_service:85
     depends_on:
       - ecommerce_db
     ports:
@@ -48,6 +49,8 @@ services:
     container_name: payment_container
     environment:
       - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/payments
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
     depends_on:
       - ecommerce_db
     ports:

@@ -1,9 +1,8 @@
-import { authAPI } from "../instances";
+import { adminAPI } from "../instances";
 
 export const AdminLoginAPI = (formData) =>
-  authAPI.post("/admin/login", formData, {
+  adminAPI.post("/admin/login", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
   });
-

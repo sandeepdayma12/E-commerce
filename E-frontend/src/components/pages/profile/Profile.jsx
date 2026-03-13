@@ -18,7 +18,7 @@ export default function Profile() {
     mobile: "",
   });
 
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("userToken");
 
   useEffect(() => {
     fetchProfile();

@@ -54,7 +54,7 @@ function ProductList() {
       <div className="list-header">
         <h2>Your Products</h2>
 
-        <Link to="/admin/addProduct" className="add-btn">+ Add New</Link>
+        <Link to="/admin/createProduct" className="add-btn">+ Add New</Link>
       </div>
 
       <table className="product-table">
@@ -77,8 +77,12 @@ function ProductList() {
 
               <td>
                 <img
-                  src={`${API_BASE_URL}/${p.image_path[0]}`}
-                  alt={p.name}
+                  src={
+                    p.image_path?.[0]
+                      ? `${API_BASE_URL}/${p.image_path[0]}`
+                      : "/placeholder.png"
+                  }
+                  alt={p.name || "Product"}
                   className="product-img"
                 />
               </td>

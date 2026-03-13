@@ -12,10 +12,6 @@ export const adminLoginService = async ({ Email, password }) => {
 
     const token = res.data?.access_token;
 
-    if (token) {
-      localStorage.setItem("token", token);
-    }
-
     return {
       success: true,
       token,

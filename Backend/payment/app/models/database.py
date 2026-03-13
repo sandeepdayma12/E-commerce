@@ -1,14 +1,4 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import declarative_base
-
-
-
-engine = create_engine('postgresql://sandeep:sandeep@ecommerce_db:5432/payments')
-
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-Base = declarative_base()
+"""
+Compat module. Prefer importing from app.models.db to avoid duplicate engines.
+"""
+from .db import engine, Base, SessionLocal

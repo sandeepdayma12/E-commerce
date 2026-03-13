@@ -12,21 +12,28 @@ class PaymentService:
         self.repo = Payment_Repo(db)
 
     def create_payment_intent(self, payment_data: schemas.Paymentintentcreate) -> dict:
-        if not stripe.api_key:
-            raise ValueError("STRIPE_SECRET_KEY is not set")
-        if stripe.api_key.startswith("pk_"):
-            raise ValueError("STRIPE_SECRET_KEY is a publishable key (pk_*). Use a secret key (sk_*).")
-
+        print(f"Creating intent for order_id={payment_data.order_id}, amount={payment_data.amount}, currency={payment_data.currency}")
+        
+        if payment_data.amount <= 0:
+            raise ValueError("Amount must be greater than 0")
+        
         existing_payment = self.repo.get_by_payment(order_id=payment_data.order_id)
         
-        amount_in_cents = int(payment_data.amount * 100)
+        amount_in_cents = int(round(payment_data.amount * 100))
+        if amount_in_cents < 50:  # Stripe minimum
+            raise ValueError("Amount too small for Stripe (min 0.50)")
 
+        print(f"Creating Stripe PaymentIntent for {amount_in_cents} cents")
         intent = stripe.PaymentIntent.create(
             amount=amount_in_cents,
             currency=payment_data.currency,
             automatic_payment_methods={"enabled": True},
-            metadata={"order_id": payment_data.order_id}
+            metadata={
+                "order_id": str(payment_data.order_id),
+                "user_id": getattr(payment_data, 'user_id', 'unknown')
+            }
         )
+        print(f"Stripe intent created: {intent.id}")
 
         if existing_payment:
             payment_record = self.repo.update_payment_intent_id(

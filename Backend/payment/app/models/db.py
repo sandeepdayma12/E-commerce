@@ -1,7 +1,11 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = "postgresql://sandeep:sandeep@ecommerce_db:5432/payments"
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://sandeep:sandeep@ecommerce_db:5432/payments"
+)
 
 # For SQLite, enable check_same_thread for threads
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}

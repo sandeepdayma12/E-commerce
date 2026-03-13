@@ -54,7 +54,7 @@ function OrderList() {
               <td>{o.user_id}</td>
               <td>₹{o.total_amount}</td>
               <td>{o.status}</td>
-              <td>{new Date(o.created_at).toLocaleString()}</td>
+              <td>{o.created_at ? new Date(o.created_at).toLocaleString() : "—"}</td>
             </tr>
           ))}
         </tbody>

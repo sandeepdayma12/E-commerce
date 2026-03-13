@@ -56,7 +56,7 @@ function Shop() {
       title: p.name,
       price: p.price,
       category: p.category?.category,
-      img: p.image_path[0]
+      img: p.image_path?.[0]
         ? `${API_BASE_URL}/${p.image_path[0].replace(/^\/+/, "")}`
         : "/placeholder.png",
       description: p.description,
@@ -81,7 +81,7 @@ function Shop() {
 
       const matchSearch =
         !searchTerm ||
-        p.title.toLowerCase().includes(searchTerm) ||
+        (p.title || "").toLowerCase().includes(searchTerm) ||
         p.description?.toLowerCase().includes(searchTerm) ||
         p.category?.toLowerCase().includes(searchTerm);
 
@@ -205,7 +205,7 @@ function Shop() {
                   <p className="price">₹{product.price}</p>
 
                   <button onClick={() => handleAdd(product)}>
-                    <i class="ri-shopping-cart-2-fill"></i> Add to Cart
+                    <i className="ri-shopping-cart-2-fill"></i> Add to Cart
                   </button>
                 </div>
 

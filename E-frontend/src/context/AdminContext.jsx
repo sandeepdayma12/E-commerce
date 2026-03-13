@@ -7,17 +7,17 @@ export const AdminProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null)
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('adminToken')
     setIsAdminLoggedIn(!!token)
   }, [])
 
   const login = (token) => {
-    localStorage.setItem('token', token)
+    localStorage.setItem('adminToken', token)
     setIsAdminLoggedIn(true)
   }
 
   const logout = () => {
-    localStorage.removeItem('token')
+    localStorage.removeItem('adminToken')
     setIsAdminLoggedIn(false)
     setAdmin(null)
   }

@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   const loadUserProfile = useCallback(async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("userToken");
     if (!token) {
       setIsLoggedIn(false);
       setUser(null);
@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
       setIsLoggedIn(true);
     } catch (err) {
       console.error("User profile fetch failed:", err);
-      localStorage.removeItem("token");
+      localStorage.removeItem("userToken");
       setUser(null);
       setIsLoggedIn(false);
     }
@@ -32,13 +32,13 @@ export const AuthProvider = ({ children }) => {
   }, [loadUserProfile]);
 
   const login = (token) => {
-    localStorage.setItem("token", token);
+    localStorage.setItem("userToken", token);
     setIsLoggedIn(true);
     loadUserProfile();
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("userToken");
     setIsLoggedIn(false);
     setUser(null);
   };
