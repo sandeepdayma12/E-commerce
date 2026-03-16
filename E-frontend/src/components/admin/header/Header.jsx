@@ -18,14 +18,16 @@ function Header({ toggleSidebar }) {
   };
 
   return (
-    <div className="admin-header">
-     
-      <div className="navbar-logo">
-        <div className="logo-text">
-          <span className="brand-main">Shop</span>
-          <span className="brand-sub">ix</span>
+      <div className="admin-header">
+        <button className="mobile-toggle" onClick={toggleSidebar}>
+          <FaBars />
+        </button>
+        <div className="navbar-logo">
+          <div className="logo-text">
+            <span className="brand-main">Shop</span>
+            <span className="brand-sub">ix</span>
+          </div>
         </div>
-      </div>
 
 
       <div className="header-right">

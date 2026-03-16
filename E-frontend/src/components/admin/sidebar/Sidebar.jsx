@@ -17,64 +17,70 @@ function Sidebar({ isOpen, setIsOpen }) {
   const [openOrder, setOpenOrder] = useState(false);
 
   return (
-    <div className={isOpen ? "sidebar open" : "sidebar closed"}>
-      <h2 className="logo">ADMIN</h2>
+    <>
+      {isOpen && (
+        <div className="sidebar-overlay" onClick={() => setIsOpen(false)} />
+      )}
+      <div className={isOpen ? "sidebar open" : "sidebar closed"}>
+        <h2 className="logo">ADMIN</h2>
+        <button className="close-btn" onClick={() => setIsOpen(false)}>
+          &times;
+        </button>
 
-      <ul className="menu-list">
+        <ul className="menu-list">
+          <li className="menu-item">
+            <Link to="/admin/dashboard" className="li-link">
+              <FaHome /> <span>Dashboard</span>
+            </Link>
+          </li>
 
-        <li className="menu-item">
-          <Link to="/admin/dashboard" className="li-link">
-            <FaHome /> <span>Dashboard</span>
-          </Link>
-        </li>
+          {/* PRODUCT */}
+          <li className="dropdown" onClick={() => setOpenProduct(!openProduct)}>
+            <FaBox /> <span>Product</span>
+            {openProduct ? <FaChevronUp /> : <FaChevronDown />}
+          </li>
 
-        {/* PRODUCT */}
-        <li className="dropdown" onClick={() => setOpenProduct(!openProduct)}>
-          <FaBox /> <span>Product</span>
-          {openProduct ? <FaChevronUp /> : <FaChevronDown />}
-        </li>
+          {openProduct && (
+            <ul className="submenu">
+              <li><Link to="/admin/createProduct">Create Product</Link></li>
+              <li><Link to="/admin/productList">Product List</Link></li>
+            </ul>
+          )}
 
-        {openProduct && (
-          <ul className="submenu">
-            <li><Link to="/admin/createProduct">Create Product</Link></li>
-            <li><Link to="/admin/productList">Product List</Link></li>
-          </ul>
-        )}
+          {/* CATEGORY */}
+          <li className="dropdown" onClick={() => setOpenCategory(!openCategory)}>
+            <FaChartPie /> <span>Category</span>
+            {openCategory ? <FaChevronUp /> : <FaChevronDown />}
+          </li>
 
-        {/* CATEGORY */}
-        <li className="dropdown" onClick={() => setOpenCategory(!openCategory)}>
-          <FaChartPie /> <span>Category</span>
-          {openCategory ? <FaChevronUp /> : <FaChevronDown />}
-        </li>
+          {openCategory && (
+            <ul className="submenu">
+              <li><Link to="/admin/createcategory">Create Category</Link></li>
+              <li><Link to="/admin/categoryList">Category List</Link></li>
+            </ul>
+          )}
 
-        {openCategory && (
-          <ul className="submenu">
-            <li><Link to="/admin/createcategory">Create Category</Link></li>
-            <li><Link to="/admin/categoryList">Category List</Link></li>
-          </ul>
-        )}
+          {/* USERS */}
+          <li className="menu-item">
+            <Link to="/admin/users" className="li-link">
+              <FaUsers /> <span>Users</span>
+            </Link>
+          </li>
 
-        {/* USERS */}
-        <li className="menu-item">
-          <Link to="/admin/users" className="li-link">
-            <FaUsers /> <span>Users</span>
-          </Link>
-        </li>
+          {/* ORDERS */}
+          <li className="dropdown" onClick={() => setOpenOrder(!openOrder)}>
+            <FaShoppingCart /> <span>Orders</span>
+            {openOrder ? <FaChevronUp /> : <FaChevronDown />}
+          </li>
 
-        {/* ORDERS */}
-        <li className="dropdown" onClick={() => setOpenOrder(!openOrder)}>
-          <FaShoppingCart /> <span>Orders</span>
-          {openOrder ? <FaChevronUp /> : <FaChevronDown />}
-        </li>
-
-        {openOrder && (
-          <ul className="submenu">
-            <li><Link to="/admin/orderList">Order List</Link></li>
-          </ul>
-        )}
-
-      </ul>
-    </div>
+          {openOrder && (
+            <ul className="submenu">
+              <li><Link to="/admin/orderList">Order List</Link></li>
+            </ul>
+          )}
+        </ul>
+      </div>
+    </>
   );
 }
 

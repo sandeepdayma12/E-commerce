@@ -1,8 +1,69 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { getAdminStats, getRecentOrders } from '../../../../services/adminDashboard.service.js';
+import { FaUsers, FaBox, FaShoppingCart, FaRupeeSign, FaChartLine, FaBell, FaSpinner } from "react-icons/fa";
 import "./Dashboard.css";
-import { FaUsers, FaBox, FaShoppingCart, FaRupeeSign, FaChartLine, FaBell } from "react-icons/fa";
 
 function Dashboard() {
+  const [stats, setStats] = useState(null);
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [statsRes, ordersRes] = await Promise.all([
+          getAdminStats(),
+          getRecentOrders()
+        ]);
+        setStats(statsRes);
+        setRecentOrders(ordersRes.slice(0, 5)); // Top 5 recent
+      } catch (err) {
+        setError('Failed to load dashboard data');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const salesData = stats?.salesData || [
+    { month: 'Jan', sales: 400 },
+    { month: 'Feb', sales: 300 },
+    { month: 'Mar', sales: 500 },
+    { month: 'Apr', sales: 420 },
+    { month: 'May', sales: 600 },
+    { month: 'Jun', sales: 580 },
+  ];
+
+  if (loading) {
+    return (
+      <div className="dashboard">
+        <h2 className="title">📊 Dashboard Overview</h2>
+        <div className="cards">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="card" style={{background: 'linear-gradient(135deg, #f0f0f0, #e0e0e0)'}}>
+              <div className="icon-box"><FaSpinner className="animate-spin" /></div>
+              <h3>Loading...</h3>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard">
+        <h2 className="title">📊 Dashboard Overview</h2>
+        <div style={{textAlign: 'center', color: 'red'}}>{error}</div>
+      </div>
+    );
+  }
+
   return (
     <div className="dashboard">
 
@@ -14,25 +75,25 @@ function Dashboard() {
         <div className="card card-users">
           <div className="icon-box"><FaUsers /></div>
           <h3>Total Users</h3>
-          <p>1,240</p>
+          <p>{stats?.totalUsers?.toLocaleString() || 0}</p>
         </div>
 
         <div className="card card-orders">
           <div className="icon-box"><FaShoppingCart /></div>
           <h3>Total Orders</h3>
-          <p>780</p>
+          <p>{stats?.totalOrders?.toLocaleString() || 0}</p>
         </div>
 
         <div className="card card-revenue">
           <div className="icon-box"><FaRupeeSign /></div>
           <h3>Total Revenue</h3>
-          <p>₹45,800</p>
+          <p>₹{stats?.totalRevenue?.toLocaleString() || 0}</p>
         </div>
 
         <div className="card card-products">
           <div className="icon-box"><FaBox /></div>
           <h3>Total Products</h3>
-          <p>320</p>
+          <p>{stats?.totalProducts?.toLocaleString() || 0}</p>
         </div>
 
       </div>
