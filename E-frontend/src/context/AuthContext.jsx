@@ -6,12 +6,14 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   const loadUserProfile = useCallback(async () => {
     const token = localStorage.getItem("userToken");
     if (!token) {
       setIsLoggedIn(false);
       setUser(null);
+      setIsAuthLoading(false);
       return;
     }
 
@@ -24,6 +26,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("userToken");
       setUser(null);
       setIsLoggedIn(false);
+    } finally {
+      setIsAuthLoading(false);
     }
   }, []);
 
@@ -34,6 +38,7 @@ export const AuthProvider = ({ children }) => {
   const login = (token) => {
     localStorage.setItem("userToken", token);
     setIsLoggedIn(true);
+    setIsAuthLoading(true);
     loadUserProfile();
   };
 
@@ -41,12 +46,14 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("userToken");
     setIsLoggedIn(false);
     setUser(null);
+    setIsAuthLoading(false);
   };
 
   return (
     <AuthContext.Provider
       value={{
         isLoggedIn,
+        isAuthLoading,
         user,
         login,
         logout,

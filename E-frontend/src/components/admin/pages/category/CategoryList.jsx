@@ -8,14 +8,23 @@ import {
 
 function CategoryList() {
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState({ type: "", message: "" });
 
   // Pagination States
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
   const loadData = async () => {
-    const data = await getCategoriesService();
-    setCategories(data);
+    try {
+      const data = await getCategoriesService();
+      setCategories(data || []);
+    } catch (err) {
+      console.log("Category list error:", err);
+      setStatus({ type: "error", message: "Failed to load categories." });
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -25,8 +34,17 @@ function CategoryList() {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure to delete this category?")) return;
 
-    await deleteCategoryService(id);
-    loadData();
+    try {
+      await deleteCategoryService(id);
+      setStatus({ type: "success", message: "Category deleted successfully." });
+      loadData();
+    } catch (err) {
+      console.log("Delete category error:", err);
+      setStatus({
+        type: "error",
+        message: err.response?.data?.message || "Failed to delete category.",
+      });
+    }
   };
 
   // Pagination Logic
@@ -49,6 +67,12 @@ function CategoryList() {
 
         <Link to="/admin/createcategory" className="add-btn">+ Add New</Link>
       </div>
+
+      {status.message && (
+        <p className={status.type === "error" ? "error-text" : "success-text"}>
+          {status.message}
+        </p>
+      )}
 
       {/* TABLE */}
       <table className="category-table">
@@ -81,6 +105,10 @@ function CategoryList() {
           ))}
         </tbody>
       </table>
+
+      {!loading && categories.length === 0 && (
+        <p className="empty-text">No categories found.</p>
+      )}
 
       {/* PAGINATION */}
       <div className="pagination">

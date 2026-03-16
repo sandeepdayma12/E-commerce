@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../../context/AuthContext";
 import { CartContext } from "../../../context/CartContext";
 import { loginService } from "../../../services/auth.service";
@@ -8,6 +8,7 @@ import { FaUser, FaEye, FaEyeSlash } from "react-icons/fa";
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useContext(AuthContext);
   const { addToCart } = useContext(CartContext);
 
@@ -54,8 +55,11 @@ function Login() {
       return;
     }
 
-    // Normal redirect
-    setTimeout(() => navigate("/"), 800);
+    // Normal redirect (return to intended page if present)
+    const fromPath = location.state?.from?.pathname;
+    const fromSearch = location.state?.from?.search || "";
+    const target = fromPath ? `${fromPath}${fromSearch}` : "/";
+    setTimeout(() => navigate(target), 800);
   };
 
   // Auto-add pending product on refresh

@@ -156,6 +156,14 @@
   .vendor-graphs {
     grid-template-columns: 1fr;
   }
+
+  .vendor-table {
+    min-width: 640px;
+  }
+
+  .vendor-dashboard {
+    overflow-x: auto;
+  }
 }
 
 @media (max-width: 600px) {

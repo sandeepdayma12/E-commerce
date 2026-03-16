@@ -8,6 +8,8 @@ export default function AdminProfile() {
 
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState({ type: "", message: "" });
 
   const [formData, setFormData] = useState({
     name: "",
@@ -16,17 +18,11 @@ export default function AdminProfile() {
     Goverment_ID: "",
     GST_Number: "",
   });
+  const [initialData, setInitialData] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("adminToken");
-
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
     adminAPI
-      .get(`/api/admin_profile?token=${token}`)
+      .get("/api/admin_profile")
       .then((res) => {
         const data = res.data;
 
@@ -39,8 +35,18 @@ export default function AdminProfile() {
           Goverment_ID: data.Goverment_ID || "",
           GST_Number: data.GST_Number || "",
         });
+        setInitialData({
+          name: data.name || "",
+          Email: data.Email || "",
+          Mobile_Number: data.Mobile_Number || "",
+          Goverment_ID: data.Goverment_ID || "",
+          GST_Number: data.GST_Number || "",
+        });
       })
-      .catch((err) => console.log("Profile fetch error:", err))
+      .catch((err) => {
+        console.log("Profile fetch error:", err);
+        setStatus({ type: "error", message: "Failed to load profile." });
+      })
       .finally(() => setLoading(false));
   }, [setAdmin]);
 
@@ -51,16 +57,58 @@ export default function AdminProfile() {
     });
   };
 
+  const validateProfile = () => {
+    if (!formData.name.trim()) return "Name is required.";
+    if (!formData.Email.trim()) return "Email is required.";
+    if (formData.Mobile_Number && !/^\d{7,15}$/.test(formData.Mobile_Number)) {
+      return "Mobile number must be 7-15 digits.";
+    }
+    return null;
+  };
+
+  const handleCancel = () => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+    setEditMode(false);
+    setStatus({ type: "", message: "" });
+  };
+
   // Save Profile
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
 
-    // Update in Context
-    setAdmin(formData);
+    const validationError = validateProfile();
+    if (validationError) {
+      setStatus({ type: "error", message: validationError });
+      return;
+    }
 
-    console.log("Updated profile:", formData);
+    const adminId = admin?.id ?? admin?.admin_id ?? admin?._id;
+    if (!adminId) {
+      setStatus({ type: "error", message: "Missing admin ID. Cannot update profile." });
+      return;
+    }
 
-    setEditMode(false);
+    try {
+      setSaving(true);
+      setStatus({ type: "", message: "" });
+
+      await adminAPI.put(`/admin/update/${adminId}`, formData);
+      setAdmin({ ...admin, ...formData });
+      setInitialData({ ...formData });
+
+      setStatus({ type: "success", message: "Profile updated successfully." });
+      setEditMode(false);
+    } catch (err) {
+      console.log("Profile update error:", err);
+      setStatus({
+        type: "error",
+        message: err.response?.data?.message || "Failed to update profile.",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) return <h2 className="loading">Loading profile...</h2>;
@@ -70,7 +118,13 @@ export default function AdminProfile() {
 
       <div className="profile-box">
 
-        <h2 className="title">👤 {formData.name} Profile</h2>
+        <h2 className="title">{formData.name || "Admin"} Profile</h2>
+
+        {status.message && (
+          <p className={status.type === "error" ? "error-text" : "success-text"}>
+            {status.message}
+          </p>
+        )}
 
         <form onSubmit={handleSave}>
           <div className="profile-fields">
@@ -125,8 +179,10 @@ export default function AdminProfile() {
           <div className="form-buttons">
             {editMode ? (
               <>
-                <button type="submit" className="btn-save">Save</button>
-                <button className="btn-cancel" type="button" onClick={() => setEditMode(false)}>
+                <button type="submit" className="btn-save" disabled={saving}>
+                  {saving ? "Saving..." : "Save"}
+                </button>
+                <button className="btn-cancel" type="button" onClick={handleCancel}>
                   Cancel
                 </button>
               </>

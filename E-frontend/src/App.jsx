@@ -31,6 +31,7 @@ import OrderDetails from './components/pages/order/OrderDetails'
 import VendorDashboard from './components/admin/pages/dashboard/VendorDashboard'
 import ScrollToTop from './components/ScrollToTop'
 import ProtectedAdminRoute from './components/ProtectedAdminRoute'
+import ProtectedRoute from './components/ProtectedRoute'
 import UserList from './components/admin/pages/users/userList/UserList'
 
 function App() {
@@ -45,15 +46,23 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path='/shop' element={<Shop />} />
-          <Route path='/profile' element={<Profile />} />
           <Route path='/cart' element={<Cart />} />
           <Route path='/contact' element={<Contact />} />
           <Route path="/product/:id" element={<ProductDetails />} />
-          <Route path='/checkout' element={<Checkout />} />
-          <Route path='/payment' element={<Payment />} />
-          <Route path="/order-success" element={<OrderSuccess />} />
-          <Route path="/orders" element={<OrderHistory />} />
-          <Route path="/orders/:orderId" element={<OrderDetails />} />
+          <Route
+            element={
+              <ProtectedRoute>
+                <Outlet />
+              </ProtectedRoute>
+            }
+          >
+            <Route path='/profile' element={<Profile />} />
+            <Route path='/checkout' element={<Checkout />} />
+            <Route path='/payment' element={<Payment />} />
+            <Route path="/order-success" element={<OrderSuccess />} />
+            <Route path="/orders" element={<OrderHistory />} />
+            <Route path="/orders/:orderId" element={<OrderDetails />} />
+          </Route>
         </Route>
         <Route element={<AdminLayout />}>
           <Route path="/admin/register" element={<AdminRegister />} />

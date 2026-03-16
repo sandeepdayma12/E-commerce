@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { AdminContext } from "../../../context/AdminContext";
 import { adminLoginService } from "../../../services/admin.service";
 import "./AdminLogin.css";
@@ -7,6 +7,7 @@ import { FaUser, FaEye, FaEyeSlash } from "react-icons/fa";
 
 function AdminLogin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useContext(AdminContext);
 
   const [formData, setFormData] = useState({
@@ -42,7 +43,10 @@ function AdminLogin() {
     login(response.token);
 
     setSuccess("Login successful! Redirecting...");
-    setTimeout(() => navigate("/admin/dashboard"), 1200);
+    const fromPath = location.state?.from?.pathname;
+    const fromSearch = location.state?.from?.search || "";
+    const target = fromPath ? `${fromPath}${fromSearch}` : "/admin/dashboard";
+    setTimeout(() => navigate(target), 1200);
   };
 
   return (

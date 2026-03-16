@@ -11,6 +11,9 @@ function EditProduct() {
   const [categories, setCategories] = useState([]);
   const [imagePreview, setImagePreview] = useState("");
   const [newImage, setNewImage] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState({ type: "", message: "" });
 
   const [formData, setFormData] = useState({
     name: "",
@@ -26,7 +29,10 @@ function EditProduct() {
     categoryAPI
       .get("/get_categories/")
       .then((res) => setCategories(res.data || []))
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log("Category fetch error:", err);
+        setStatus({ type: "error", message: "Failed to load categories." });
+      });
   }, []);
 
   // Load existing product data
@@ -49,7 +55,11 @@ function EditProduct() {
           setImagePreview(toProductImageUrl(p.image_path[0]));
         }
       })
-      .catch((err) => console.log("Fetch error:", err));
+      .catch((err) => {
+        console.log("Fetch error:", err);
+        setStatus({ type: "error", message: "Failed to load product." });
+      })
+      .finally(() => setLoading(false));
   }, [id]);
 
   // Submit update
@@ -69,18 +79,25 @@ function EditProduct() {
     }
 
     try {
+      setSaving(true);
+      setStatus({ type: "", message: "" });
       await productAPI.put(`/api/update_product/${id}`, form, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
-      alert("Product updated!");
-      navigate("/admin/productList");
+      setStatus({ type: "success", message: "Product updated successfully." });
+      setTimeout(() => navigate("/admin/productList"), 600);
 
     } catch (err) {
       console.error("Update error:", err);
-      alert("Failed to update product!");
+      setStatus({
+        type: "error",
+        message: err.response?.data?.message || "Failed to update product.",
+      });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -95,6 +112,11 @@ function EditProduct() {
       </div>
 
       <form className="product-form" onSubmit={handleSubmit}>
+        {status.message && (
+          <p className={status.type === "error" ? "error-text" : "success-text"}>
+            {status.message}
+          </p>
+        )}
         
         <div className="form-group">
           <label>Product Name</label>
@@ -104,6 +126,7 @@ function EditProduct() {
               setFormData({ ...formData, name: e.target.value })
             }
             required
+            disabled={loading}
           />
         </div>
 
@@ -115,6 +138,7 @@ function EditProduct() {
               setFormData({ ...formData, category_id: e.target.value })
             }
             required
+            disabled={loading}
           >
             <option value="">Select Category</option>
             {categories.map((c) => (
@@ -134,6 +158,7 @@ function EditProduct() {
               setFormData({ ...formData, quantity: e.target.value })
             }
             required
+            disabled={loading}
           />
         </div>
 
@@ -146,6 +171,7 @@ function EditProduct() {
               setFormData({ ...formData, price: e.target.value })
             }
             required
+            disabled={loading}
           />
         </div>
 
@@ -157,6 +183,7 @@ function EditProduct() {
               setFormData({ ...formData, description: e.target.value })
             }
             required
+            disabled={loading}
           ></textarea>
         </div>
 
@@ -171,10 +198,13 @@ function EditProduct() {
             type="file"
             accept="image/*"
             onChange={(e) => setNewImage(e.target.files[0])}
+            disabled={loading}
           />
         </div>
 
-        <button className="btn-submit">Save Changes</button>
+        <button className="btn-submit" disabled={saving || loading}>
+          {saving ? "Saving..." : "Save Changes"}
+        </button>
       </form>
 
     </div>

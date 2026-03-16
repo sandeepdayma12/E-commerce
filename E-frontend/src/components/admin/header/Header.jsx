@@ -1,11 +1,11 @@
 import React, { useContext, useState } from "react";
-import { FaSearch, FaBell, FaUser, FaSignOutAlt } from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
+import { FaBars } from "react-icons/fa";
+import { FaBell, FaUser, FaSignOutAlt } from "react-icons/fa";
 import "./Header.css";
 import { Link, useNavigate } from "react-router-dom";
 import { AdminContext } from "../../../context/AdminContext";
 
-function Header() {
+function Header({ toggleSidebar }) {
   const { isAdminLoggedIn, logout } = useContext(AdminContext);
   const navigate = useNavigate();
 

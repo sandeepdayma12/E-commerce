@@ -3,6 +3,7 @@
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  overflow-x: auto;
 }
 
 .header {
@@ -76,4 +77,22 @@
   border: none;
   background: none;
   outline: none;
+}
+
+@media (max-width: 900px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .orders-table {
+    min-width: 720px;
+  }
+}
+
+@media (max-width: 600px) {
+  .orders-list-container {
+    padding: 16px;
+  }
 }

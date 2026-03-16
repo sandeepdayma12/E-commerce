@@ -1,12 +1,12 @@
 import React, { useContext } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { AdminContext } from "../context/AdminContext";
+import { AuthContext } from "../context/AuthContext";
 
-const ProtectedAdminRoute = ({ children }) => {
-  const { isAdminLoggedIn, isAdminAuthLoading } = useContext(AdminContext);
+const ProtectedRoute = ({ children }) => {
+  const { isLoggedIn, isAuthLoading } = useContext(AuthContext);
   const location = useLocation();
 
-  if (isAdminAuthLoading) {
+  if (isAuthLoading) {
     return (
       <div className="auth-guard">
         <div className="auth-guard__card">
@@ -19,11 +19,11 @@ const ProtectedAdminRoute = ({ children }) => {
     );
   }
 
-  if (!isAdminLoggedIn) {
-    return <Navigate to="/admin/login" replace state={{ from: location }} />;
+  if (!isLoggedIn) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
   return children;
 };
 
-export default ProtectedAdminRoute;
+export default ProtectedRoute;

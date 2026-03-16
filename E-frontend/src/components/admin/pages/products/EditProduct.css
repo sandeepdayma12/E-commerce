@@ -4,6 +4,7 @@
   display: flex;
   justify-content: center;
   background: #f5f7ff;
+  width: 100%;
 }
 
 /* CARD */
@@ -105,4 +106,19 @@
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+  .add-product-container {
+    padding: 20px;
+  }
+
+  .page-header h2 {
+    font-size: 22px;
+  }
+
+  .product-preview {
+    width: 90px;
+    height: 90px;
+  }
 }

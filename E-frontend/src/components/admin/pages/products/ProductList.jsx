@@ -10,6 +10,8 @@ import { toProductImageUrl } from "../../../../utils/image";
 
 function ProductList() {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState({ type: "", message: "" });
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,6 +24,9 @@ function ProductList() {
       setProducts(data || []);
     } catch (err) {
       console.log("Failed to load products:", err);
+      setStatus({ type: "error", message: "Failed to load products." });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,9 +40,14 @@ function ProductList() {
 
     try {
       await deleteProductService(id);
+      setStatus({ type: "success", message: "Product deleted successfully." });
       loadProducts();
     } catch (err) {
       console.log("Delete Error:", err);
+      setStatus({
+        type: "error",
+        message: err.response?.data?.message || "Failed to delete product.",
+      });
     }
   };
 
@@ -54,6 +64,12 @@ function ProductList() {
 
         <Link to="/admin/createProduct" className="add-btn">+ Add New</Link>
       </div>
+
+      {status.message && (
+        <p className={status.type === "error" ? "error-text" : "success-text"}>
+          {status.message}
+        </p>
+      )}
 
       <table className="product-table">
         <thead>
@@ -106,6 +122,10 @@ function ProductList() {
           ))}
         </tbody>
       </table>
+
+      {!loading && products.length === 0 && (
+        <p className="empty-text">No products found.</p>
+      )}
 
       {/* PAGINATION */}
       <div className="pagination">

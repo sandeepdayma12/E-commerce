@@ -20,10 +20,11 @@
   flex: 1;
   padding: 20px;
   background-color: #f9f9f9;
+  margin-left: 240px;
 }
 
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .layout-wrapper {
     flex-direction: column;
   }
@@ -31,5 +32,11 @@
   .sidebar {
     width: 100%;
     position: relative;
+  }
+
+  .layout-content {
+    margin-left: 0;
+    padding: 16px;
+    padding-top: 64px;
   }
 }

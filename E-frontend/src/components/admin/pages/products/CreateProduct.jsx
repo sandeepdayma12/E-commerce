@@ -17,6 +17,7 @@ function CreateProduct() {
 
   const [message, setMessage] = useState(null);     // SUCCESS / ERROR message
   const [msgType, setMsgType] = useState("success"); // success / error
+  const [saving, setSaving] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -92,6 +93,7 @@ function CreateProduct() {
     images.forEach((img) => form.append("images", img));
 
     try {
+      setSaving(true);
       await createProductService(form);
       showMessage("Product created successfully!", "success");
 
@@ -100,6 +102,8 @@ function CreateProduct() {
       }, 1000);
     } catch (err) {
       showMessage("Failed to create product!", "error");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -123,14 +127,15 @@ function CreateProduct() {
           {/* NAME */}
           <div className="form-group">
             <label>Product Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              placeholder="Enter Product Name"
-              onChange={handleChange}
-              required
-            />
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            placeholder="Enter Product Name"
+            onChange={handleChange}
+            required
+            disabled={saving}
+          />
           </div>
 
           {/* CATEGORY */}
@@ -141,6 +146,7 @@ function CreateProduct() {
               value={formData.category_id}
               onChange={handleChange}
               required
+              disabled={saving}
             >
               <option value="">Select Category</option>
 
@@ -166,6 +172,7 @@ function CreateProduct() {
               placeholder="Enter Quantity"
               onChange={handleChange}
               required
+              disabled={saving}
             />
           </div>
 
@@ -179,6 +186,7 @@ function CreateProduct() {
               placeholder="Enter Price"
               onChange={handleChange}
               required
+              disabled={saving}
             />
           </div>
 
@@ -191,13 +199,20 @@ function CreateProduct() {
               placeholder="Enter Description"
               onChange={handleChange}
               required
+              disabled={saving}
             />
           </div>
 
           {/* IMAGE UPLOAD */}
           <div className="form-group">
             <label>Upload Images</label>
-            <input type="file" accept="image/*" multiple onChange={handleImageUpload} />
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageUpload}
+              disabled={saving}
+            />
           </div>
 
           {/* PREVIEW */}
@@ -209,7 +224,9 @@ function CreateProduct() {
             </div>
           )}
 
-          <button type="submit" className="btn-submit">Add Product</button>
+          <button type="submit" className="btn-submit" disabled={saving}>
+            {saving ? "Adding..." : "Add Product"}
+          </button>
         </form>
       </div>
     </div>

@@ -14,14 +14,23 @@ function EditCategory() {
     category: "",
     description: "",
   });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState({ type: "", message: "" });
 
   useEffect(() => {
-    getCategoryService(id).then((data) => {
-      setFormData({
-        category: data.category,
-        description: data.description,
-      });
-    });
+    getCategoryService(id)
+      .then((data) => {
+        setFormData({
+          category: data.category,
+          description: data.description,
+        });
+      })
+      .catch((err) => {
+        console.log("Category fetch error:", err);
+        setStatus({ type: "error", message: "Failed to load category." });
+      })
+      .finally(() => setLoading(false));
   }, [id]);
 
   const handleChange = (e) => {
@@ -31,9 +40,21 @@ function EditCategory() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await updateCategoryService(id, formData);
-
-    navigate("/admin/categoryList");
+    try {
+      setSaving(true);
+      setStatus({ type: "", message: "" });
+      await updateCategoryService(id, formData);
+      setStatus({ type: "success", message: "Category updated successfully." });
+      setTimeout(() => navigate("/admin/categoryList"), 600);
+    } catch (err) {
+      console.log("Category update error:", err);
+      setStatus({
+        type: "error",
+        message: err.response?.data?.message || "Failed to update category.",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -41,6 +62,11 @@ function EditCategory() {
       <h2>Edit Category</h2>
 
       <form className="category-form" onSubmit={handleSubmit}>
+        {status.message && (
+          <p className={status.type === "error" ? "error-text" : "success-text"}>
+            {status.message}
+          </p>
+        )}
         <div className="form-group">
           <label>Category Name</label>
           <input
@@ -49,6 +75,7 @@ function EditCategory() {
             value={formData.category}
             onChange={handleChange}
             required
+            disabled={loading}
           />
         </div>
 
@@ -60,10 +87,13 @@ function EditCategory() {
             value={formData.description}
             onChange={handleChange}
             required
+            disabled={loading}
           />
         </div>
 
-        <button className="btn-submit">Save Changes</button>
+        <button className="btn-submit" disabled={saving || loading}>
+          {saving ? "Saving..." : "Save Changes"}
+        </button>
       </form>
     </div>
   );

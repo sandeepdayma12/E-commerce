@@ -27,3 +27,60 @@
     transform: translate(-50%, 0);
   }
 }
+
+.auth-guard {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f6f3ee 0%, #eef3f0 100%);
+}
+
+.auth-guard__card {
+  width: min(420px, 92vw);
+  padding: 28px 26px;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.auth-guard__logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #1f8a70, #0b5f4b);
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-guard__logo::after,
+.auth-guard__line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transform: translateX(-100%);
+  animation: shimmer 1.4s infinite;
+}
+
+.auth-guard__line {
+  height: 12px;
+  border-radius: 8px;
+  background: #eef2f0;
+  margin-top: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-guard__line--lg {
+  height: 18px;
+  margin-top: 4px;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
