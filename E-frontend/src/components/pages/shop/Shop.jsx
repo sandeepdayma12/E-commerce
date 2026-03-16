@@ -5,6 +5,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import { ProductContext } from "../../../context/ProductContext";
 import { CartContext } from "../../../context/CartContext";
 import { ToastContext } from "../../../context/ToastContext";
+import { toProductImageUrl } from "../../../utils/image";
 
 import { useNavigate, Link, useLocation } from "react-router-dom";
 
@@ -47,9 +48,6 @@ function Shop() {
   }, [selectedCategory, priceRange, searchQuery]);
 
   /*DATA TRANSFORMATION*/
-  const API_BASE_URL =
-    import.meta.env.VITE_PRODUCT_URL || "http://192.168.29.249:8001";
-
   const transformedProducts = useMemo(() => {
     return products.map((p) => ({
       id: p.id,
@@ -57,7 +55,7 @@ function Shop() {
       price: p.price,
       category: p.category?.category,
       img: p.image_path?.[0]
-        ? `${API_BASE_URL}/${p.image_path[0].replace(/^\/+/, "")}`
+        ? toProductImageUrl(p.image_path[0])
         : "/placeholder.png",
       description: p.description,
       stock: p.quantity,

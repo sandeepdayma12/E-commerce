@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import "./EditProduct.css";
+import { categoryAPI, productAPI } from "../../../../api/instances";
+import { toProductImageUrl } from "../../../../utils/image";
 
 function EditProduct() {
   const { id } = useParams();
@@ -22,16 +23,16 @@ function EditProduct() {
 
   // Load categories
   useEffect(() => {
-    axios
-      .get("http://192.168.29.249:8001/categories/api/get_categories")
-      .then((res) => setCategories(res.data))
+    categoryAPI
+      .get("/get_categories/")
+      .then((res) => setCategories(res.data || []))
       .catch((err) => console.log(err));
   }, []);
 
   // Load existing product data
   useEffect(() => {
-    axios
-      .get(`http://192.168.29.249:8001/api/product/get/${id}`)
+    productAPI
+      .get(`/api/product/get/${id}`)
       .then((res) => {
         const p = res.data;
 
@@ -45,7 +46,7 @@ function EditProduct() {
         });
 
         if (p.image_path && p.image_path.length > 0) {
-          setImagePreview(`http://192.168.29.249:8001/${p.image_path[0]}`);
+          setImagePreview(toProductImageUrl(p.image_path[0]));
         }
       })
       .catch((err) => console.log("Fetch error:", err));
@@ -68,15 +69,11 @@ function EditProduct() {
     }
 
     try {
-      await axios.put(
-        `http://192.168.29.249:8001/api/update_product/${id}`,
-        form,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await productAPI.put(`/api/update_product/${id}`, form, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       alert("Product updated!");
       navigate("/admin/productList");

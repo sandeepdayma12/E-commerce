@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { OrderService } from "../../../services/orderService";
 import "./OrderDetails.css";
+import { toProductImageUrl } from "../../../utils/image";
 
 export default function OrderDetails() {
   const { orderId } = useParams();
@@ -149,7 +150,7 @@ export default function OrderDetails() {
                   >
                     {item.image_url && (
                       <img
-                        src={item.image_url}
+                        src={toProductImageUrl(item.image_url)}
                         alt={item.product_name || "Item"}
                         style={{ width: "60px", height: "60px", objectFit: "cover" }}
                       />

@@ -9,6 +9,8 @@ import {
 
 // Create Product
 export const createProductService = async (formData) => {
+  const token = localStorage.getItem("adminToken");
+  console.debug("[createProductService] adminToken present:", !!token);
   const res = await createProductAPI(formData);
   return res.data;
 };
@@ -41,4 +43,3 @@ export const getProductsByAdminService = async () => {
   const res = await getProductsByAdminAPI();
   return res.data;
 };
-

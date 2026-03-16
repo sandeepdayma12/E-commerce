@@ -12,6 +12,13 @@ export const adminLoginService = async ({ Email, password }) => {
 
     const token = res.data?.access_token;
 
+    if (!token) {
+      return {
+        success: false,
+        message: res.data?.message || "Login failed: no token returned"
+      };
+    }
+
     return {
       success: true,
       token,

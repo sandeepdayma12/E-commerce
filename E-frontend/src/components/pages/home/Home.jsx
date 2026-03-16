@@ -7,6 +7,7 @@ import { CartContext } from "../../../context/CartContext";
 import { AuthContext } from "../../../context/AuthContext";
 import { ToastContext } from "../../../context/ToastContext";
 import { useNavigate } from "react-router-dom";
+import { toProductImageUrl } from "../../../utils/image";
 
 function Home() {
   const { products, loading } = useContext(ProductContext);
@@ -20,15 +21,13 @@ function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
 
-  const API_BASE_URL = import.meta.env.VITE_PRODUCT_URL || "http://192.168.29.249:8001";
-
   const transformedProducts = products.map((p) => ({
     id: p.id,
     title: p.name,
     price: p.price,
     category: p.category?.category,
     img: p.image_path?.[0]
-      ? `${API_BASE_URL}/${p.image_path[0].replace(/^\/+/, "")}`
+      ? toProductImageUrl(p.image_path[0])
       : "/placeholder.png",
     description: p.description,
     stock: p.quantity,

@@ -1,8 +1,8 @@
-import { productAPI } from "../instances";
+import { productAPI, productAdminAPI } from "../instances";
 
 // CREATE product
 export const createProductAPI = (data) =>
-  productAPI.post("/api/create_product/", data);
+  productAdminAPI.post("/api/create_product/", data);
 
 // GET all products
 export const getProductsAPI = () =>
@@ -14,11 +14,11 @@ export const getProductByIdAPI = (id) =>
 
 // UPDATE product
 export const updateProductAPI = (id, data) =>
-  productAPI.put(`/api/update_product/${id}`, data);
+  productAdminAPI.put(`/api/update_product/${id}`, data);
 
 // DELETE product
 export const deleteProductAPI = (id) =>
-  productAPI.delete(`/api/delete_product/${id}`);
+  productAdminAPI.delete(`/api/delete_product/${id}`);
 
 export const getProductsByAdminAPI = () =>
-  productAPI.get("/api/products/by_admin/");
+  productAdminAPI.get("/api/products/by_admin/");

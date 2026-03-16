@@ -33,6 +33,10 @@ export const productAPI = axios.create({
   baseURL: import.meta.env.VITE_PRODUCT_URL || "http://localhost:8005/",
 });
 
+export const productAdminAPI = axios.create({
+  baseURL: import.meta.env.VITE_PRODUCT_URL || "http://localhost:8005/",
+});
+
 // Category API usually belongs to the Product Service
 export const categoryAPI = axios.create({
   baseURL: import.meta.env.VITE_CATEGORY_URL || "http://localhost:8005/categories/api",
@@ -61,6 +65,22 @@ adminAPI.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Interceptor to add Admin Token to product admin API
+productAdminAPI.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) {
+      console.warn("[productAdminAPI] Missing adminToken");
+      return config;
+    }
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
+    console.debug("[productAdminAPI] Auth header set", config.headers.Authorization);
     return config;
   },
   (error) => Promise.reject(error)

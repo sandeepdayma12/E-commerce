@@ -56,7 +56,7 @@ function CreateProduct() {
 
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === "category_id" ? Number(value) : value,
     }));
   };
 

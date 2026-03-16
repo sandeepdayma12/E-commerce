@@ -3,6 +3,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import { OrderService } from "../../../services/orderService";
 import { Link, useNavigate } from "react-router-dom";
 import "./OrderHistory.css";
+import { toProductImageUrl } from "../../../utils/image";
 
 export default function OrderHistory() {
   const { isLoggedIn } = useContext(AuthContext);
@@ -83,10 +84,7 @@ export default function OrderHistory() {
                 {order.items?.slice(0, 3).map((item, idx) => (
                   <div className="mini-item" key={idx}>
                     <img
-                      src={`${
-                        import.meta.env.VITE_PRODUCT_URL ||
-                        "http://192.168.29.249:8001"
-                      }/${item.image?.replace(/^\/+/, "")}`}
+                      src={toProductImageUrl(item.image)}
                       alt={item.name}
                     />
                     <div className="mini-details">

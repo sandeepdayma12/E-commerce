@@ -6,6 +6,7 @@ import {
   getProductsByAdminService,
   deleteProductService,
 } from "../../../../services/product.service";
+import { toProductImageUrl } from "../../../../utils/image";
 
 function ProductList() {
   const [products, setProducts] = useState([]);
@@ -13,9 +14,6 @@ function ProductList() {
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
-
-  const API_BASE_URL =
-    import.meta.env.VITE_PRODUCT_URL || "http://192.168.0.122:8001";
 
   // Load admin-specific products
   const loadProducts = async () => {
@@ -79,7 +77,7 @@ function ProductList() {
                 <img
                   src={
                     p.image_path?.[0]
-                      ? `${API_BASE_URL}/${p.image_path[0]}`
+                      ? toProductImageUrl(p.image_path[0])
                       : "/placeholder.png"
                   }
                   alt={p.name || "Product"}

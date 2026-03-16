@@ -4,6 +4,7 @@ import { ProductContext } from "../../../context/ProductContext";
 import { CartContext } from "../../../context/CartContext";
 import { AuthContext } from "../../../context/AuthContext";
 import { ToastContext } from "../../../context/ToastContext";
+import { toProductImageUrl } from "../../../utils/image";
 import "./ProductDetails.css";
 
 export default function ProductDetails() {
@@ -18,9 +19,6 @@ export default function ProductDetails() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
 
-  const API_BASE_URL =
-    import.meta.env.VITE_PRODUCT_URL || "http://192.168.29.249:8001";
-
   if (loading) return <h2 className="loading">Loading...</h2>;
 
   const product = products.find((p) => p.id === Number(id));
@@ -30,7 +28,7 @@ export default function ProductDetails() {
   const imagePaths = Array.isArray(product.image_path) ? product.image_path : [];
   const images =
     imagePaths.length > 0
-      ? imagePaths.map((img) => `${API_BASE_URL}/${img.replace(/^\/+/, "")}`)
+      ? imagePaths.map((img) => toProductImageUrl(img))
       : ["/placeholder.png"];
 
   // Add to cart → cart redirect
