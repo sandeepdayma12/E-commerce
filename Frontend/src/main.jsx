@@ -5,7 +5,7 @@ import './index.css'
 import App from './App.jsx'
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import AppContextProvider from "./context/AppContextProvider";
+import AppContextProvider from "./context/AppContextProvider.jsx";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
