@@ -39,6 +39,8 @@ function Dashboard() {
     { month: 'Jun', sales: 580 },
   ];
 
+  const formatCurrency = (value) => `₹${Number(value || 0).toLocaleString()}`;
+
   if (loading) {
     return (
       <div className="dashboard">
@@ -123,7 +125,15 @@ function Dashboard() {
 
         <div className="chart-box">
           <h3><FaChartLine /> Sales Analytics</h3>
-          <div className="chart-placeholder">Chart Coming Soon</div>
+          <ResponsiveContainer width="100%" height={260}>
+            <LineChart data={salesData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip formatter={(value) => formatCurrency(value)} />
+              <Line type="monotone" dataKey="sales" stroke="#4f46e5" strokeWidth={3} />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
 
         <div className="orders-box">
@@ -140,27 +150,35 @@ function Dashboard() {
             </thead>
 
             <tbody>
-              <tr>
-                <td>Amit</td>
-                <td>Smart Watch</td>
-                <td className="status delivered">Delivered</td>
-                <td>₹2,999</td>
-              </tr>
+              {recentOrders.length > 0 ? (
+                recentOrders.map((order) => {
+                  const status = order.status || order.order_status || "pending";
+                  const product =
+                    order.product_name ||
+                    order.product?.name ||
+                    order.items?.[0]?.product_name ||
+                    "Order item";
+                  const userName =
+                    order.user_name ||
+                    order.user?.name ||
+                    order.customer_name ||
+                    "Customer";
+                  const price = order.total_amount || order.price || order.amount;
 
-              <tr>
-                <td>Sara</td>
-                <td>Headphones</td>
-                <td className="status pending">Pending</td>
-                <td>₹1,499</td>
-              </tr>
-
-              <tr>
-                <td>John</td>
-                <td>iPhone 14</td>
-                <td className="status shipped">Shipped</td>
-                <td>₹79,999</td>
-              </tr>
-
+                  return (
+                    <tr key={order.id || `${userName}-${product}`}>
+                      <td>{userName}</td>
+                      <td>{product}</td>
+                      <td className={`status ${String(status).toLowerCase()}`}>{status}</td>
+                      <td>{formatCurrency(price)}</td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="4">No recent orders</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

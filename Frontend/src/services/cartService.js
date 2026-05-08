@@ -1,4 +1,3 @@
-import { data } from "react-router-dom";
 import { cartAPI } from "../api/instances";
 
 // Generic request wrapper

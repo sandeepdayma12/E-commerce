@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import "./Navbar.css";
@@ -18,13 +18,13 @@ function Navbar() {
     navigate("/login");
   };
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     if (search.trim() === "") {
       navigate("/shop");
       return;
     }
     navigate(`/shop?search=${search}`);
-  };
+  }, [navigate, search]);
 
   // Auto-search on typing
   useEffect(() => {
@@ -35,7 +35,7 @@ function Navbar() {
 
     return () => clearTimeout(delay);
   }
-}, [search]);
+}, [handleSearch, search]);
 
   return (
     <nav className="navbar">

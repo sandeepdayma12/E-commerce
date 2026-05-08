@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { OrderService } from "../../../services/orderService";
 import "./OrderDetails.css";
@@ -11,11 +11,7 @@ export default function OrderDetails() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
-  useEffect(() => {
-    fetchOrderDetails();
-  }, [orderId]);
-
-  const fetchOrderDetails = async () => {
+  const fetchOrderDetails = useCallback(async () => {
     setLoading(true);
     setErrorMsg("");
     try {
@@ -27,7 +23,11 @@ export default function OrderDetails() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderId]);
+
+  useEffect(() => {
+    fetchOrderDetails();
+  }, [fetchOrderDetails]);
 
   const formatDate = (dateString) => {
     if (!dateString) return "—";

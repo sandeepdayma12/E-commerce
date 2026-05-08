@@ -13,12 +13,10 @@ function CreateCategory() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError("");
-    setSuccess("");
   };
 
   const validateFields = () => {

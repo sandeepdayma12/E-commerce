@@ -87,7 +87,8 @@ function PaymentForm() {
           state: { orderId, total },
         });
       }
-    } catch (err) {
+    } catch (error) {
+      console.error("Payment failed:", error);
       showToast("❌ Payment failed.");
     } finally {
       setLoading(false);

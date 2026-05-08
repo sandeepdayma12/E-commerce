@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useCallback, useContext, useState, useEffect } from 'react';
 import { authAPI } from '../../../api/instances';
 import { AuthContext } from '../../../context/AuthContext';
 import { Link } from 'react-router-dom';
@@ -20,11 +20,12 @@ export default function Profile() {
 
   const token = localStorage.getItem("userToken");
 
-  useEffect(() => {
-    fetchProfile();
+  const showMessage = useCallback((type, text) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage({ type: '', text: '' }), 4000);
   }, []);
 
-  const fetchProfile = () => {
+  const fetchProfile = useCallback(() => {
     authAPI
       .get(`/api/user_profile?token=${token}`)
       .then((res) => {
@@ -41,12 +42,11 @@ export default function Profile() {
         showMessage('error', 'Failed to load profile');
       })
       .finally(() => setLoading(false));
-  };
+  }, [setUser, showMessage, token]);
 
-  const showMessage = (type, text) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage({ type: '', text: '' }), 4000);
-  };
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

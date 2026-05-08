@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "./CreateProduct.css";
 import { useNavigate } from "react-router-dom";
 
@@ -33,7 +33,8 @@ function CreateProduct() {
       try {
         const data = await getCategoriesService();
         setCategories(data || []);
-      } catch (err) {
+      } catch (error) {
+        console.error("Failed to load categories:", error);
         showMessage("Failed to load categories!", "error");
       }
     };
@@ -73,7 +74,7 @@ function CreateProduct() {
     if (!isAdminLoggedIn) {
       navigate("/admin/login");
     }
-  }, [isAdminLoggedIn]);
+  }, [isAdminLoggedIn, navigate]);
   // Cleanup image preview
   useEffect(() => {
     return () => {
@@ -100,7 +101,8 @@ function CreateProduct() {
       setTimeout(() => {
         navigate("/admin/productList");
       }, 1000);
-    } catch (err) {
+    } catch (error) {
+      console.error("Failed to create product:", error);
       showMessage("Failed to create product!", "error");
     } finally {
       setSaving(false);

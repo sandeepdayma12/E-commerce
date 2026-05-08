@@ -72,7 +72,7 @@ function Login() {
       addToCart(pending);
       localStorage.removeItem("pendingProduct");
     }
-  }, []);
+  }, [addToCart]);
 
   return (
     <div className="login-page">

@@ -14,9 +14,9 @@ const location = useLocation();
   return (
     <>
  {!hideLayout && <Header toggleSidebar={() => setIsOpen(!isOpen)} />}
-      <div className="layout-wrapper">
+      <div className="admin-layout-wrapper">
  {!hideLayout && <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />}
-        <main className={`layout-content ${isOpen ? '' : 'sidebar-closed'}`} style={{ marginLeft: hideLayout || !isOpen ? "0" : "240px", transition: 'margin-left 0.3s ease' }}>
+        <main className={`admin-layout-content ${isOpen ? '' : 'admin-sidebar-closed'}`} style={{ marginLeft: hideLayout || !isOpen ? "0" : "240px", transition: 'margin-left 0.3s ease' }}>
           <Outlet />
         </main>
       </div>

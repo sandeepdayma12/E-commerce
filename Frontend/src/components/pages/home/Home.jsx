@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useMemo } from "react";
 import "./Home.css";
 import { Link } from "react-router-dom";
 import ImageSlider from "./ImageSlider";
@@ -21,7 +21,7 @@ function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
 
-  const transformedProducts = products.map((p) => ({
+  const transformedProducts = useMemo(() => products.map((p) => ({
     id: p.id,
     title: p.name,
     price: p.price,
@@ -31,7 +31,7 @@ function Home() {
       : "/placeholder.png",
     description: p.description,
     stock: p.quantity,
-  }));
+  })), [products]);
 
   useEffect(() => {
     if (loading) return;
@@ -42,7 +42,7 @@ function Home() {
 
     const shuffled = [...transformedProducts].sort(() => 0.5 - Math.random());
     setFeaturedProducts(shuffled.slice(0, 4));
-  }, [products, loading]);
+  }, [loading, transformedProducts]);
 
   // Check if product is in cart
   const isInCart = (productId) => {

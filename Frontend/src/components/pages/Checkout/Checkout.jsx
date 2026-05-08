@@ -106,6 +106,7 @@ function Checkout() {
       sessionStorage.setItem("pending_payment", JSON.stringify(pendingPayment));
       navigate("/payment", { state: pendingPayment });
     } catch (error) {
+      console.error("Order creation failed:", error);
       showToast("❌ Order could not be created. Try again.");
     } finally {
       setLoading(false);
