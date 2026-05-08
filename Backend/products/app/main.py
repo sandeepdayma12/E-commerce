@@ -6,10 +6,12 @@ from app.Routers.product_router import product_router
 from app.Routers.category_router import category_router
 from app.models.database import Base, engine
 from .database_utils import create_database_if_not_exists
+from .seed_mock_data import seed_mock_products
 create_database_if_not_exists()
 
 # 2. Create Tables
 Base.metadata.create_all(bind=engine)
+seed_mock_products()
 
 # Path to: /Backend/products/static
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # /products/app

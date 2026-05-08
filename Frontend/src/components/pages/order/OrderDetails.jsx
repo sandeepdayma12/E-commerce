@@ -1,8 +1,64 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  FaArrowLeft,
+  FaBox,
+  FaCalendarAlt,
+  FaCreditCard,
+  FaMapMarkerAlt,
+  FaReceipt,
+  FaTruck,
+  FaUser,
+} from "react-icons/fa";
 import { OrderService } from "../../../services/orderService";
-import "./OrderDetails.css";
 import { toProductImageUrl } from "../../../utils/image";
+import "./OrderDetails.css";
+
+const formatDate = (dateString) => {
+  if (!dateString) return "—";
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+const formatCurrency = (value) =>
+  `₹${Number(value || 0).toLocaleString("en-IN", {
+    maximumFractionDigits: 2,
+  })}`;
+
+const getOrderItems = (order) => order?.items || order?.order_items || [];
+
+const getItemName = (item) =>
+  item?.product_name || item?.name || `Product #${item?.product_id || "—"}`;
+
+const getItemImage = (item) =>
+  item?.image_url || item?.image || item?.image_path?.[0] || "";
+
+const getItemPrice = (item) => Number(item?.price_at_purchase || item?.price || 0);
+
+const AddressBlock = ({ title, address }) => (
+  <div className="order-address-block">
+    <h3>{title}</h3>
+    {address ? (
+      <>
+        <strong>{address.recipient_name || "—"}</strong>
+        <span>{address.street || "—"}</span>
+        <span>
+          {address.city || "—"} {address.postal_code ? `- ${address.postal_code}` : ""}
+        </span>
+        <span>{address.country || "—"}</span>
+      </>
+    ) : (
+      <span>Address not available.</span>
+    )}
+  </div>
+);
 
 export default function OrderDetails() {
   const { orderId } = useParams();
@@ -29,231 +85,201 @@ export default function OrderDetails() {
     fetchOrderDetails();
   }, [fetchOrderDetails]);
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "—";
-    const d = new Date(dateString);
-    return Number.isNaN(d.getTime())
-      ? "—"
-      : d.toLocaleDateString("en-IN", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        });
-  };
+  const items = useMemo(() => getOrderItems(order), [order]);
+  const subtotal = useMemo(
+    () =>
+      items.reduce(
+        (sum, item) => sum + getItemPrice(item) * Number(item.quantity || 0),
+        0
+      ),
+    [items]
+  );
 
   if (loading) {
     return (
-      <div className="simple-loading">
-        <div className="loader"></div>
+      <div className="order-state-page">
+        <div className="order-loader"></div>
+        <p>Loading order details...</p>
       </div>
     );
   }
 
-  if (errorMsg) {
+  if (errorMsg || !order) {
     return (
-      <div className="simple-error">
-        <h2>{errorMsg}</h2>
-        <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center" }}>
-          <button onClick={fetchOrderDetails}>Retry</button>
+      <div className="order-state-page">
+        <FaReceipt className="order-state-icon" />
+        <h2>{errorMsg || "Order not found"}</h2>
+        <div className="state-actions">
+          {errorMsg && <button onClick={fetchOrderDetails}>Retry</button>}
           <button onClick={() => navigate("/orders")}>Back to Orders</button>
         </div>
       </div>
     );
   }
 
-  if (!order) {
-    return (
-      <div className="simple-error">
-        <h2>Order not found</h2>
-        <button onClick={() => navigate("/orders")}>Back to Orders</button>
-      </div>
-    );
-  }
-
-  const safeOrder = {
-    ...order,
-    shipping_address: order?.shipping_address || {},
-    billing_address: order?.billing_address || {},
-    payment_details: order?.payment_details || {},
-  };
-
-  const totalAmount =
-    typeof safeOrder.total_amount === "number"
-      ? safeOrder.total_amount
-      : Number(safeOrder.total_amount || 0);
-  const shippingCost =
-    typeof safeOrder.shipping_cost === "number"
-      ? safeOrder.shipping_cost
-      : Number(safeOrder.shipping_cost || 0);
-  const items = safeOrder.order_items || safeOrder.items || [];
+  const status = String(order.status || "pending").toLowerCase();
+  const totalAmount = Number(order.total_amount || subtotal || 0);
+  const shippingCost = Math.max(totalAmount - subtotal, 0);
+  const paymentDetails = order.payment_details || {};
 
   return (
-    <div className="simple-order-page">
-      <div className="simple-container">
-        <header className="simple-header">
-          <button className="back-link" onClick={() => navigate("/orders")}>
-            ← Back
-          </button>
-          <div className="header-info">
-            <h1>Order #{safeOrder.id}</h1>
-            <div className="header-meta">
-              <span className="order-date">{formatDate(safeOrder.created_at)}</span>
-              <span className={`simple-status ${(safeOrder.status || "unknown").toLowerCase()}`}>
-                {safeOrder.status || "Unknown"}
-              </span>
-            </div>
+    <div className="order-detail-page">
+      <header className="order-detail-hero">
+        <button className="back-button" onClick={() => navigate("/orders")}>
+          <FaArrowLeft /> Back
+        </button>
+
+        <div className="order-title-row">
+          <div>
+            <span className="order-kicker"><FaReceipt /> Order Receipt</span>
+            <h1>Order #{order.id}</h1>
+            <p>Placed on {formatDate(order.created_at)}</p>
           </div>
-        </header>
-
-        <div className="simple-content">
-          <div className="main-section">
-            <section className="simple-card">
-              <h2>Order Details</h2>
-              <div className="info-list">
-                <div className="info-item">
-                  <span>Order Date</span>
-                  <strong>{formatDate(safeOrder.created_at)}</strong>
-                </div>
-                <div className="info-item">
-                  <span>Last Updated</span>
-                  <strong>{formatDate(safeOrder.updated_at)}</strong>
-                </div>
-                {safeOrder.tracking_number && (
-                  <div className="info-item">
-                    <span>Tracking Number</span>
-                    <strong className="tracking">{safeOrder.tracking_number}</strong>
-                  </div>
-                )}
-                {safeOrder.shipping_method && (
-                  <div className="info-item">
-                    <span>Shipping Method</span>
-                    <strong>{safeOrder.shipping_method}</strong>
-                  </div>
-                )}
-              </div>
-            </section>
-
-            <section className="simple-card">
-              <h2>Order Items ({items.length})</h2>
-              {items.length > 0 ? (
-                items.map((item, index) => (
-                  <div
-                    key={item.id || index}
-                    className="order-item-row"
-                    style={{
-                      display: "flex",
-                      gap: "1rem",
-                      marginBottom: "1rem",
-                      padding: "1rem 0",
-                      borderBottom: "1px solid #eee",
-                    }}
-                  >
-                    {item.image_url && (
-                      <img
-                        src={toProductImageUrl(item.image_url)}
-                        alt={item.product_name || "Item"}
-                        style={{ width: "60px", height: "60px", objectFit: "cover" }}
-                      />
-                    )}
-                    <div style={{ flex: 1 }}>
-                      <h4 style={{ margin: "0 0 0.5rem 0" }}>
-                        {item.product_name || "N/A"}
-                      </h4>
-                      <p style={{ margin: 0 }}>Qty: {item.quantity || 0}</p>
-                      <p style={{ margin: 0, fontWeight: "bold" }}>
-                        ₹{(Number(item.price_at_purchase || 0) * (item.quantity || 1)).toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p>No items in this order.</p>
-              )}
-            </section>
-
-            <section className="simple-card">
-              <h2>Delivery Information</h2>
-              {!safeOrder.shipping_address.recipient_name &&
-                !safeOrder.shipping_address.street &&
-                !safeOrder.shipping_address.city &&
-                !safeOrder.shipping_address.postal_code &&
-                !safeOrder.shipping_address.country &&
-                !safeOrder.billing_address.recipient_name &&
-                !safeOrder.billing_address.street &&
-                !safeOrder.billing_address.city &&
-                !safeOrder.billing_address.postal_code &&
-                !safeOrder.billing_address.country && (
-                  <p style={{ marginTop: "0.5rem" }}>Address not available.</p>
-                )}
-
-              <div className="address-group">
-                <div className="address-block">
-                  <h3>Shipping Address</h3>
-                  <p className="name">{safeOrder.shipping_address.recipient_name || "—"}</p>
-                  <p>{safeOrder.shipping_address.street || "—"}</p>
-                  <p>
-                    {safeOrder.shipping_address.city || "—"},{" "}
-                    {safeOrder.shipping_address.postal_code || "—"}
-                  </p>
-                  <p>{safeOrder.shipping_address.country || "—"}</p>
-                </div>
-
-                <div className="divider"></div>
-
-                <div className="address-block">
-                  <h3>Billing Address</h3>
-                  <p className="name">{safeOrder.billing_address.recipient_name || "—"}</p>
-                  <p>{safeOrder.billing_address.street || "—"}</p>
-                  <p>
-                    {safeOrder.billing_address.city || "—"},{" "}
-                    {safeOrder.billing_address.postal_code || "—"}
-                  </p>
-                  <p>{safeOrder.billing_address.country || "—"}</p>
-                </div>
-              </div>
-            </section>
-          </div>
-
-          <aside className="sidebar-section">
-            <div className="simple-card summary-card">
-              <h2>Summary</h2>
-              <div className="summary-list">
-                <div className="summary-item">
-                  <span>Subtotal</span>
-                  <span>₹{totalAmount.toFixed(2)}</span>
-                </div>
-                <div className="summary-item">
-                  <span>Shipping</span>
-                  <span>
-                    {shippingCost > 0 ? `₹${shippingCost.toFixed(2)}` : <span className="free">Free</span>}
-                  </span>
-                </div>
-                <div className="summary-total">
-                  <span>Total</span>
-                  <strong>₹{totalAmount.toFixed(2)}</strong>
-                </div>
-              </div>
-
-              {safeOrder.payment_details && (
-                <div className="payment-info">
-                  <div className="payment-row">
-                    <span>Payment Method</span>
-                    <span>{safeOrder.payment_details.method || "—"}</span>
-                  </div>
-                  <div className="payment-row">
-                    <span>Status</span>
-                    <span className="payment-badge">{safeOrder.payment_details.status || "—"}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="simple-card">
-              <h2>Customer</h2>
-              <p className="customer-id">{safeOrder.user_id || "—"}</p>
-            </div>
-          </aside>
+          <span className={`status-pill ${status}`}>{order.status || "Pending"}</span>
         </div>
+      </header>
+
+      <div className="order-detail-grid">
+        <main className="order-main-column">
+          <section className="order-panel">
+            <div className="panel-title">
+              <FaBox />
+              <div>
+                <h2>Items in this order</h2>
+                <p>{items.length} product{items.length === 1 ? "" : "s"} purchased</p>
+              </div>
+            </div>
+
+            <div className="order-items-list">
+              {items.length > 0 ? (
+                items.map((item, index) => {
+                  const price = getItemPrice(item);
+                  const quantity = Number(item.quantity || 0);
+                  const lineTotal = price * quantity;
+
+                  return (
+                    <article className="order-item-card" key={item.id || `${item.product_id}-${index}`}>
+                      <div className="item-image-box">
+                        <img
+                          src={toProductImageUrl(getItemImage(item))}
+                          alt={getItemName(item)}
+                          onError={(event) => {
+                            event.currentTarget.src = "/vite.svg";
+                          }}
+                        />
+                      </div>
+                      <div className="item-content">
+                        <div>
+                          <span className="item-product-id">Product #{item.product_id || "—"}</span>
+                          <h3>{getItemName(item)}</h3>
+                        </div>
+                        <div className="item-facts">
+                          <span>Qty {quantity}</span>
+                          <span>{formatCurrency(price)} each</span>
+                          {item.admin_id && <span>Seller #{item.admin_id}</span>}
+                        </div>
+                      </div>
+                      <strong className="item-total">{formatCurrency(lineTotal)}</strong>
+                    </article>
+                  );
+                })
+              ) : (
+                <p className="muted-text">No item details were returned for this order.</p>
+              )}
+            </div>
+          </section>
+
+          <section className="order-panel">
+            <div className="panel-title">
+              <FaMapMarkerAlt />
+              <div>
+                <h2>Delivery information</h2>
+                <p>Shipping and billing address used for this purchase</p>
+              </div>
+            </div>
+            <div className="address-grid">
+              <AddressBlock title="Shipping Address" address={order.shipping_address} />
+              <AddressBlock title="Billing Address" address={order.billing_address} />
+            </div>
+          </section>
+        </main>
+
+        <aside className="order-side-column">
+          <section className="order-panel summary-panel">
+            <div className="panel-title compact">
+              <FaReceipt />
+              <h2>Price Summary</h2>
+            </div>
+
+            <div className="summary-lines">
+              <div>
+                <span>Subtotal</span>
+                <strong>{formatCurrency(subtotal || totalAmount)}</strong>
+              </div>
+              <div>
+                <span>Shipping</span>
+                <strong>{shippingCost > 0 ? formatCurrency(shippingCost) : "Free"}</strong>
+              </div>
+              <div className="summary-grand">
+                <span>Total Paid</span>
+                <strong>{formatCurrency(totalAmount)}</strong>
+              </div>
+            </div>
+          </section>
+
+          <section className="order-panel order-facts-panel">
+            <div className="fact-row">
+              <FaCalendarAlt />
+              <div>
+                <span>Created</span>
+                <strong>{formatDate(order.created_at)}</strong>
+              </div>
+            </div>
+            <div className="fact-row">
+              <FaCalendarAlt />
+              <div>
+                <span>Updated</span>
+                <strong>{formatDate(order.updated_at)}</strong>
+              </div>
+            </div>
+            <div className="fact-row">
+              <FaTruck />
+              <div>
+                <span>Shipping Method</span>
+                <strong>{order.shipping_method || "Standard Delivery"}</strong>
+              </div>
+            </div>
+            <div className="fact-row">
+              <FaTruck />
+              <div>
+                <span>Tracking Number</span>
+                <strong>{order.tracking_number || "Not assigned"}</strong>
+              </div>
+            </div>
+            <div className="fact-row">
+              <FaUser />
+              <div>
+                <span>Customer ID</span>
+                <strong>{order.user_id || "—"}</strong>
+              </div>
+            </div>
+          </section>
+
+          <section className="order-panel payment-panel">
+            <div className="panel-title compact">
+              <FaCreditCard />
+              <h2>Payment</h2>
+            </div>
+            <div className="payment-grid">
+              <span>Method</span>
+              <strong>{paymentDetails.method || "Card / Online"}</strong>
+              <span>Status</span>
+              <strong>{paymentDetails.status || (status === "cancelled" ? "Cancelled" : "Paid / Pending")}</strong>
+              <span>Payment ID</span>
+              <strong>{paymentDetails.payment_id || paymentDetails.id || "—"}</strong>
+            </div>
+          </section>
+        </aside>
       </div>
     </div>
   );

@@ -36,6 +36,11 @@ function Shop() {
 
   const itemsPerPage = 12;
 
+  const getCategoryName = (product) =>
+    product.category?.category ||
+    (typeof product.category === "string" ? product.category : "") ||
+    (product.category_id ? `Category ${product.category_id}` : "Uncategorized");
+
 
   // Sync category with URL
   useEffect(() => {
@@ -53,7 +58,7 @@ function Shop() {
       id: p.id,
       title: p.name,
       price: p.price,
-      category: p.category?.category,
+      category: getCategoryName(p),
       img: p.image_path?.[0]
         ? toProductImageUrl(p.image_path[0])
         : "/placeholder.png",
@@ -64,7 +69,7 @@ function Shop() {
 
   /*CATEGORY LIST*/
   const categories = useMemo(() => {
-    return ["All", ...new Set(transformedProducts.map((p) => p.category))];
+    return ["All", ...new Set(transformedProducts.map((p) => p.category).filter(Boolean))];
   }, [transformedProducts]);
 
   /*FILTERED PRODUCTS*/

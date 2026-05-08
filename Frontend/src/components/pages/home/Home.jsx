@@ -21,11 +21,16 @@ function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
 
+  const getCategoryName = (product) =>
+    product.category?.category ||
+    (typeof product.category === "string" ? product.category : "") ||
+    (product.category_id ? `Category ${product.category_id}` : "Uncategorized");
+
   const transformedProducts = useMemo(() => products.map((p) => ({
     id: p.id,
     title: p.name,
     price: p.price,
-    category: p.category?.category,
+    category: getCategoryName(p),
     img: p.image_path?.[0]
       ? toProductImageUrl(p.image_path[0])
       : "/placeholder.png",
@@ -36,7 +41,7 @@ function Home() {
   useEffect(() => {
     if (loading) return;
 
-    const cats = [...new Set(transformedProducts.map((p) => p.category))];
+    const cats = [...new Set(transformedProducts.map((p) => p.category).filter(Boolean))];
     setCategories(cats);
     setBestSelling(transformedProducts.slice(0, 5));
 

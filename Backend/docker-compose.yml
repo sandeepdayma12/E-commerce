@@ -31,8 +31,11 @@ services:
     build: ./auth
     environment:
       - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/ecommerce_db
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     depends_on:
       ecommerce_db:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
     ports:
       - "8001:80"      
@@ -45,8 +48,11 @@ services:
     build: ./cart
     environment:
       - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/carts
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     depends_on:
       ecommerce_db:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
     ports:
       - "8002:81"   
@@ -60,11 +66,14 @@ services:
     environment:
       - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/orders_db
       - PRODUCT_SERVICE_URL=http://product_service:85
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     depends_on:
       ecommerce_db:
         condition: service_healthy
       product_service:
         condition: service_started
+      kafka:
+        condition: service_healthy
     ports:
       - "8003:82"
     restart: unless-stopped
@@ -78,8 +87,12 @@ services:
       - .env
     environment:
       - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/payments
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - PAYMENT_EVENTS_TOPIC=payment_events
     depends_on:
       ecommerce_db:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
     ports:
       - "8004:84"        
@@ -92,8 +105,11 @@ services:
     build: ./products
     environment:
       - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/product_services
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     depends_on:
       ecommerce_db:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
     ports:
       - "18005:85" 
@@ -117,5 +133,34 @@ services:
       retries: 20
     restart: unless-stopped
 
+  # ---------------------------------------------------
+  # KAFKA BROKER
+  # ---------------------------------------------------
+  kafka:
+    image: apache/kafka:3.7.1
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+    restart: unless-stopped
+
 volumes:
   ecommerce_data:
+  kafka_data:
