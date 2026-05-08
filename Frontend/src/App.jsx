@@ -46,7 +46,6 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path='/shop' element={<Shop />} />
-          <Route path='/cart' element={<Cart />} />
           <Route path='/contact' element={<Contact />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route
@@ -56,6 +55,7 @@ function App() {
               </ProtectedRoute>
             }
           >
+            <Route path='/cart' element={<Cart />} />
             <Route path='/profile' element={<Profile />} />
             <Route path='/checkout' element={<Checkout />} />
             <Route path='/payment' element={<Payment />} />
