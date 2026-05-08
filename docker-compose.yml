@@ -1,10 +1,7 @@
 services:
-  # ---------------------------------------------------
-  # FRONTEND
-  # ---------------------------------------------------
   frontend:
     build:
-      context: ../E-frontend
+      context: ./E-frontend
       dockerfile: dockerfile
       args:
         VITE_AUTH_URL: ${VITE_AUTH_URL:-http://localhost:8001/}
@@ -13,53 +10,50 @@ services:
         VITE_PAYMENT_URL: ${VITE_PAYMENT_URL:-http://localhost:8004/}
         VITE_PRODUCT_URL: ${VITE_PRODUCT_URL:-http://localhost:18005/}
         VITE_CATEGORY_URL: ${VITE_CATEGORY_URL:-http://localhost:18005/categories/api}
-        VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY:-}
+        VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY:-pk_test_51SUmqy1hT6WoN8zES32LnSsB7VaHFfoF4sL4JbRnrGBYtHv21HdZj0CfdCPxWbQyv2KZoheSjjt3ZphnuT3K6khC00qLNWqo2N}
+    ports:
+      - "5173:80"
     depends_on:
       - auth_service
       - cart_service
       - order_service
       - payment_service
       - product_service
-    ports:
-      - "3000:80"
     restart: unless-stopped
 
-  # ---------------------------------------------------
-  # 1. AUTH SERVICE
-  # ---------------------------------------------------
   auth_service:
-    build: ./auth
+    build:
+      context: ./Backend/auth
+      dockerfile: Dockerfile
     environment:
-      - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/ecommerce_db
+      DATABASE_URL: postgresql://sandeep:sandeep@ecommerce_db:5432/ecommerce_db
     depends_on:
       ecommerce_db:
         condition: service_healthy
     ports:
-      - "8001:80"      
+      - "8001:80"
     restart: unless-stopped
 
-  # ---------------------------------------------------
-  # 2. CART SERVICE
-  # ---------------------------------------------------
   cart_service:
-    build: ./cart
+    build:
+      context: ./Backend/cart
+      dockerfile: dockerfile
     environment:
-      - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/carts
+      DATABASE_URL: postgresql://sandeep:sandeep@ecommerce_db:5432/carts
     depends_on:
       ecommerce_db:
         condition: service_healthy
     ports:
-      - "8002:81"   
+      - "8002:81"
     restart: unless-stopped
 
-  # ---------------------------------------------------
-  # 4. ORDER SERVICE
-  # ---------------------------------------------------
   order_service:
-    build: ./orders
+    build:
+      context: ./Backend/orders
+      dockerfile: dockerfile
     environment:
-      - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/orders_db
-      - PRODUCT_SERVICE_URL=http://product_service:85
+      DATABASE_URL: postgresql://sandeep:sandeep@ecommerce_db:5432/orders_db
+      PRODUCT_SERVICE_URL: http://product_service:85
     depends_on:
       ecommerce_db:
         condition: service_healthy
@@ -69,45 +63,40 @@ services:
       - "8003:82"
     restart: unless-stopped
 
-  # ---------------------------------------------------
-  # 5. PAYMENT SERVICE
-  # ---------------------------------------------------
   payment_service:
-    build: ./payment
+    build:
+      context: ./Backend/payment
+      dockerfile: dockerfile
     env_file:
-      - .env
+      - ./Backend/.env
     environment:
-      - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/payments
+      DATABASE_URL: postgresql://sandeep:sandeep@ecommerce_db:5432/payments
     depends_on:
       ecommerce_db:
         condition: service_healthy
     ports:
-      - "8004:84"        
+      - "8004:84"
     restart: unless-stopped
 
-  # ---------------------------------------------------
-  # 3. PRODUCT SERVICE
-  # ---------------------------------------------------
   product_service:
-    build: ./products
+    build:
+      context: ./Backend/products
+      dockerfile: dockerfile
     environment:
-      - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/product_services
+      DATABASE_URL: postgresql://sandeep:sandeep@ecommerce_db:5432/product_services
     depends_on:
       ecommerce_db:
         condition: service_healthy
     ports:
-      - "18005:85" 
+      - "18005:85"
     restart: unless-stopped
 
-  # ---------------------------------------------------
-  # DATABASE (E-Commerce)
-  # ---------------------------------------------------
   ecommerce_db:
     image: pgvector/pgvector:pg15
     environment:
       POSTGRES_USER: sandeep
       POSTGRES_PASSWORD: sandeep
-      POSTGRES_DB: ecommerce_db   
+      POSTGRES_DB: ecommerce_db
     volumes:
       - ecommerce_data:/var/lib/postgresql/data
     healthcheck:

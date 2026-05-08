@@ -6,17 +6,13 @@ services:
       context: .
       dockerfile: dockerfile
       args:
-        - VITE_STRIPE_PUBLISHABLE_KEY=${VITE_STRIPE_PUBLISHABLE_KEY}
-    container_name: frontend_container
+        VITE_AUTH_URL: ${VITE_AUTH_URL:-http://localhost:8001/}
+        VITE_CART_URL: ${VITE_CART_URL:-http://localhost:8002/}
+        VITE_ORDER_URL: ${VITE_ORDER_URL:-http://localhost:8003/}
+        VITE_PAYMENT_URL: ${VITE_PAYMENT_URL:-http://localhost:8004/}
+        VITE_PRODUCT_URL: ${VITE_PRODUCT_URL:-http://localhost:18005/}
+        VITE_CATEGORY_URL: ${VITE_CATEGORY_URL:-http://localhost:18005/categories/api}
+        VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY:-}
     ports:
       - "3000:80"
-    environment:
-      # These URLs are used by the browser to find your backend services
-      # Since backends are on the same machine, we use localhost
-      - VITE_AUTH_URL=http://localhost:8001/
-      - VITE_CART_URL=http://localhost:8002/
-      - VITE_ORDER_URL=http://localhost:8003/
-      - VITE_PAYMENT_URL=http://localhost:8004/
-      - VITE_PRODUCT_URL=http://localhost:8005/
-      - VITE_STRIPE_PUBLISHABLE_KEY=${VITE_STRIPE_PUBLISHABLE_KEY}
     restart: always
