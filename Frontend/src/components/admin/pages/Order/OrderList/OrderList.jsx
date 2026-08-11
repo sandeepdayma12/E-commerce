@@ -12,11 +12,8 @@ function OrderList() {
   const loadOrders = async () => {
     try {
       const res = await orderAPI.get("/orders");
-      console.log("Orders:", res.data);
-
       setOrders(res.data); // <-- This is correct for array
-    } catch (error) {
-      console.error("Error loading orders:", error);
+    } catch {
       setStatus({ type: "error", message: "Failed to load orders." });
     } finally {
       setLoading(false);

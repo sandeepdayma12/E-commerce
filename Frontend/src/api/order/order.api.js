@@ -1,4 +1,4 @@
-import { orderAPI } from "./instances";
+import { orderAPI } from "../instances";
 
-export const createOrderAPI = (data) => orderAPI.post("/order", data);
-export const getMyOrdersAPI = () => orderAPI.get("/order/my-orders");
+export const createOrderAPI = (data) => orderAPI.post("/orders/", data);
+export const getMyOrdersAPI = () => orderAPI.get("/orders/");

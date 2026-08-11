@@ -1,7 +1,7 @@
 services:
   frontend:
     build:
-      context: ./E-frontend
+      context: ./Frontend
       dockerfile: dockerfile
       args:
         VITE_AUTH_URL: ${VITE_AUTH_URL:-http://localhost:8001/}
@@ -10,24 +10,33 @@ services:
         VITE_PAYMENT_URL: ${VITE_PAYMENT_URL:-http://localhost:8004/}
         VITE_PRODUCT_URL: ${VITE_PRODUCT_URL:-http://localhost:18005/}
         VITE_CATEGORY_URL: ${VITE_CATEGORY_URL:-http://localhost:18005/categories/api}
-        VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY:-pk_test_51SUmqy1hT6WoN8zES32LnSsB7VaHFfoF4sL4JbRnrGBYtHv21HdZj0CfdCPxWbQyv2KZoheSjjt3ZphnuT3K6khC00qLNWqo2N}
+        VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY:-}
     ports:
       - "5173:80"
     depends_on:
-      - auth_service
-      - cart_service
-      - order_service
-      - payment_service
-      - product_service
+      auth_service:
+        condition: service_healthy
+      cart_service:
+        condition: service_healthy
+      order_service:
+        condition: service_healthy
+      payment_service:
+        condition: service_healthy
+      product_service:
+        condition: service_healthy
     restart: unless-stopped
 
   auth_service:
     build:
       context: ./Backend/auth
       dockerfile: Dockerfile
+    env_file:
+      - ./Backend/.env
     environment:
-      DATABASE_URL: postgresql://sandeep:sandeep@ecommerce_db:5432/ecommerce_db
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sandeep}:${POSTGRES_PASSWORD:-sandeep}@ecommerce_db:5432/ecommerce_db
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SECRET_KEY: ${SECRET_KEY:-change-me}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
     depends_on:
       ecommerce_db:
         condition: service_healthy
@@ -35,6 +44,12 @@ services:
         condition: service_healthy
     ports:
       - "8001:80"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:80/')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   cart_service:
@@ -42,8 +57,9 @@ services:
       context: ./Backend/cart
       dockerfile: dockerfile
     environment:
-      DATABASE_URL: postgresql://sandeep:sandeep@ecommerce_db:5432/carts
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sandeep}:${POSTGRES_PASSWORD:-sandeep}@ecommerce_db:5432/carts
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
     depends_on:
       ecommerce_db:
         condition: service_healthy
@@ -51,6 +67,12 @@ services:
         condition: service_healthy
     ports:
       - "8002:81"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:81/')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   order_service:
@@ -58,18 +80,25 @@ services:
       context: ./Backend/orders
       dockerfile: dockerfile
     environment:
-      DATABASE_URL: postgresql://sandeep:sandeep@ecommerce_db:5432/orders_db
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sandeep}:${POSTGRES_PASSWORD:-sandeep}@ecommerce_db:5432/orders_db
       PRODUCT_SERVICE_URL: http://product_service:85
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
     depends_on:
       ecommerce_db:
         condition: service_healthy
       product_service:
-        condition: service_started
+        condition: service_healthy
       kafka:
         condition: service_healthy
     ports:
       - "8003:82"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:82/')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   payment_service:
@@ -79,9 +108,11 @@ services:
     env_file:
       - ./Backend/.env
     environment:
-      DATABASE_URL: postgresql://sandeep:sandeep@ecommerce_db:5432/payments
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sandeep}:${POSTGRES_PASSWORD:-sandeep}@ecommerce_db:5432/payments
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       PAYMENT_EVENTS_TOPIC: payment_events
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
     depends_on:
       ecommerce_db:
         condition: service_healthy
@@ -89,6 +120,12 @@ services:
         condition: service_healthy
     ports:
       - "8004:84"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:84/')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   product_service:
@@ -96,23 +133,30 @@ services:
       context: ./Backend/products
       dockerfile: dockerfile
     environment:
-      DATABASE_URL: postgresql://sandeep:sandeep@ecommerce_db:5432/product_services
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sandeep}:${POSTGRES_PASSWORD:-sandeep}@ecommerce_db:5432/product_services
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
     depends_on:
       ecommerce_db:
         condition: service_healthy
       kafka:
         condition: service_healthy
     ports:
-      - "18005:85"
+      - "8005:85"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:85/')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   ecommerce_db:
     image: pgvector/pgvector:pg15
     environment:
-      POSTGRES_USER: sandeep
-      POSTGRES_PASSWORD: sandeep
-      POSTGRES_DB: ecommerce_db
+      POSTGRES_USER: ${POSTGRES_USER:-sandeep}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sandeep}
+      POSTGRES_DB: ${POSTGRES_DB:-ecommerce_db}
     volumes:
       - ecommerce_data:/var/lib/postgresql/data
     healthcheck:

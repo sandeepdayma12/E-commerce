@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./EditProduct.css";
 import { categoryAPI, productAPI } from "../../../../api/instances";
-import { toProductImageUrl } from "../../../../utils/image";
+import { toProductImageUrl, getProductImagePaths } from "../../../../utils/image";
 
 function EditProduct() {
   const { id } = useParams();
@@ -51,8 +51,9 @@ function EditProduct() {
           is_active: p.is_active,
         });
 
-        if (p.image_path && p.image_path.length > 0) {
-          setImagePreview(toProductImageUrl(p.image_path[0]));
+        const imagePaths = getProductImagePaths(p.image_path);
+        if (imagePaths.length > 0) {
+          setImagePreview(toProductImageUrl(imagePaths[0]));
         }
       })
       .catch((err) => {

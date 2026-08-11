@@ -21,8 +21,7 @@ export const AuthProvider = ({ children }) => {
       const res = await authAPI.get("/api/user_profile");
       setUser(res.data);
       setIsLoggedIn(true);
-    } catch (err) {
-      console.error("User profile fetch failed:", err);
+    } catch {
       localStorage.removeItem("userToken");
       setUser(null);
       setIsLoggedIn(false);

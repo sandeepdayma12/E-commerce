@@ -27,7 +27,7 @@ export default function Profile() {
 
   const fetchProfile = useCallback(() => {
     authAPI
-      .get(`/api/user_profile?token=${token}`)
+      .get("/api/user_profile")
       .then((res) => {
         const d = res.data;
         setUser(d);
@@ -37,12 +37,11 @@ export default function Profile() {
           mobile: d?.Mobile_Number || d?.Moblile_Number || "",
         });
       })
-      .catch((err) => {
-        console.log("Profile fetch error:", err);
+      .catch(() => {
         showMessage('error', 'Failed to load profile');
       })
       .finally(() => setLoading(false));
-  }, [setUser, showMessage, token]);
+  }, [setUser, showMessage]);
 
   useEffect(() => {
     fetchProfile();
@@ -86,7 +85,7 @@ export default function Profile() {
 
     setSaving(true);
     authAPI
-      .put(`/api/update_profile?token=${token}`, {
+      .put(`/user/update/${user?.id}`, {
         name: formData.name,
         Mobile_Number: formData.mobile,
       })
@@ -95,8 +94,7 @@ export default function Profile() {
         setEditMode(false);
         showMessage('success', '✓ Profile updated successfully!');
       })
-      .catch((err) => {
-        console.log("Update error:", err);
+      .catch(() => {
         showMessage('error', 'Failed to update profile. Please try again.');
       })
       .finally(() => setSaving(false));

@@ -4,7 +4,7 @@ services:
   # ---------------------------------------------------
   frontend:
     build:
-      context: ../E-frontend
+      context: ../Frontend
       dockerfile: dockerfile
       args:
         VITE_AUTH_URL: ${VITE_AUTH_URL:-http://localhost:8001/}
@@ -29,9 +29,13 @@ services:
   # ---------------------------------------------------
   auth_service:
     build: ./auth
+    env_file:
+      - .env
     environment:
       - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/ecommerce_db
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SECRET_KEY=${SECRET_KEY:-change-me}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:5173}
     depends_on:
       ecommerce_db:
         condition: service_healthy
@@ -39,6 +43,12 @@ services:
         condition: service_healthy
     ports:
       - "8001:80"      
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:80/')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   # ---------------------------------------------------
@@ -49,6 +59,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/carts
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:5173}
     depends_on:
       ecommerce_db:
         condition: service_healthy
@@ -56,6 +67,12 @@ services:
         condition: service_healthy
     ports:
       - "8002:81"   
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:81/')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   # ---------------------------------------------------
@@ -67,15 +84,22 @@ services:
       - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/orders_db
       - PRODUCT_SERVICE_URL=http://product_service:85
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:5173}
     depends_on:
       ecommerce_db:
         condition: service_healthy
       product_service:
-        condition: service_started
+        condition: service_healthy
       kafka:
         condition: service_healthy
     ports:
       - "8003:82"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:82/')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   # ---------------------------------------------------
@@ -89,6 +113,8 @@ services:
       - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/payments
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - PAYMENT_EVENTS_TOPIC=payment_events
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
     depends_on:
       ecommerce_db:
         condition: service_healthy
@@ -96,6 +122,12 @@ services:
         condition: service_healthy
     ports:
       - "8004:84"        
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:84/')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   # ---------------------------------------------------
@@ -106,6 +138,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://sandeep:sandeep@ecommerce_db:5432/product_services
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:5173}
     depends_on:
       ecommerce_db:
         condition: service_healthy
@@ -113,6 +146,12 @@ services:
         condition: service_healthy
     ports:
       - "18005:85" 
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:85/')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   # ---------------------------------------------------

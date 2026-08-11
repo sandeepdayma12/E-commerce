@@ -18,15 +18,12 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # /products/app
 STATIC_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "static"))
 
 
-print("STATIC_DIR =", STATIC_DIR)  # Debug print
-
-# Base.metadata.create_all(bind=engine)
-
 app = FastAPI(title="E-Commerce Product Service")
 
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

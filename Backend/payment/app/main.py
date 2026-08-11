@@ -6,6 +6,8 @@ load_dotenv()
 
 from app.models.db import engine, Base
 from app.routers.router import router as payment_router
+import os
+
 create_payment_db_if_not_exists()
 Base.metadata.create_all(bind=engine)
 
@@ -15,9 +17,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,7 +30,6 @@ app.include_router(payment_router, prefix="/payments", tags=["Payments"])
 
 @app.on_event("startup")
 def validate_stripe_key():
-    import os
     stripe_key = os.getenv("STRIPE_SECRET_KEY", "")
     if not stripe_key:
         print("WARNING: STRIPE_SECRET_KEY is not set. Payment intents will fail.")
@@ -37,3 +39,7 @@ def validate_stripe_key():
 @app.get("/health", tags=["Health"])
 def health_check():
     return {"status": "ok"}
+
+@app.get("/", tags=["Health Check"])
+def read_root():
+    return {"status": "Payment Service is running"}

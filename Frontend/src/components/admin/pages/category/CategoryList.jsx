@@ -19,8 +19,7 @@ function CategoryList() {
     try {
       const data = await getCategoriesService();
       setCategories(data || []);
-    } catch (err) {
-      console.log("Category list error:", err);
+    } catch {
       setStatus({ type: "error", message: "Failed to load categories." });
     } finally {
       setLoading(false);
@@ -39,7 +38,6 @@ function CategoryList() {
       setStatus({ type: "success", message: "Category deleted successfully." });
       loadData();
     } catch (err) {
-      console.log("Delete category error:", err);
       setStatus({
         type: "error",
         message: err.response?.data?.message || "Failed to delete category.",

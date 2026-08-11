@@ -1,87 +1,147 @@
 import axios from "axios";
 
 /**
- * PORT MAPPING FROM YOUR DOCKER-COMPOSE:
- * Auth Service:    8001
- * Cart Service:    8002
- * Order Service:   8003
- * Payment Service: 8004
- * Product Service: 8005
+ * ===============================
+ * API CONFIGURATION
+ * ===============================
  */
 
-export const authAPI = axios.create({
-  baseURL: import.meta.env.VITE_AUTH_URL || "http://localhost:8001/",
-});
+const API_TIMEOUT = 15000;
 
-export const adminAPI = axios.create({
-  baseURL: import.meta.env.VITE_AUTH_URL || "http://localhost:8001/",
-});
+const API_URLS = {
+  AUTH: import.meta.env.VITE_AUTH_URL || "http://localhost:8001/",
+  CART: import.meta.env.VITE_CART_URL || "http://localhost:8002/",
+  ORDER: import.meta.env.VITE_ORDER_URL || "http://localhost:8003/",
+  PAYMENT: import.meta.env.VITE_PAYMENT_URL || "http://localhost:8004/",
+  PRODUCT: import.meta.env.VITE_PRODUCT_URL || "http://localhost:8005/",
+  CATEGORY:
+    import.meta.env.VITE_CATEGORY_URL ||
+    "http://localhost:8005/categories/api",
+};
 
-export const cartAPI = axios.create({
-  baseURL: import.meta.env.VITE_CART_URL || "http://localhost:8002/",
-});
 
-export const orderAPI = axios.create({
-  baseURL: import.meta.env.VITE_ORDER_URL || "http://localhost:8003/",
-});
+/**
+ * ===============================
+ * AXIOS INSTANCE FACTORY
+ * ===============================
+ */
 
-export const paymentAPI = axios.create({
-  baseURL: import.meta.env.VITE_PAYMENT_URL || "http://localhost:8004/",
-});
+const createAPI = (baseURL, tokenKey = "userToken") => {
+  const instance = axios.create({
+    baseURL,
+    timeout: API_TIMEOUT,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
-export const productAPI = axios.create({
-  baseURL: import.meta.env.VITE_PRODUCT_URL || "http://localhost:8005/",
-});
 
-export const productAdminAPI = axios.create({
-  baseURL: import.meta.env.VITE_PRODUCT_URL || "http://localhost:8005/",
-});
-
-// Category API usually belongs to the Product Service
-export const categoryAPI = axios.create({
-  baseURL: import.meta.env.VITE_CATEGORY_URL || "http://localhost:8005/categories/api",
-});
-
-const userServices = [authAPI, productAPI, cartAPI, orderAPI, paymentAPI, categoryAPI];
-
-// Interceptor to add User Token to user services
-userServices.forEach((api) => {
-  api.interceptors.request.use(
+  /**
+   * Request Interceptor
+   * Adds JWT Token
+   */
+  instance.interceptors.request.use(
     (config) => {
-      const token = localStorage.getItem("userToken");
+      const token = localStorage.getItem(tokenKey);
+
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+
       return config;
     },
     (error) => Promise.reject(error)
   );
-});
 
-// Interceptor to add Admin Token to admin services
-adminAPI.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("adminToken");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+
+  /**
+   * Response Interceptor
+   * Global Error Handler
+   */
+  instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      const status = error.response?.status;
+
+      if (status === 401) {
+        localStorage.removeItem(tokenKey);
+
+        // optional redirect
+        // window.location.href = "/login";
+      }
+
+      return Promise.reject(error);
     }
-    return config;
-  },
-  (error) => Promise.reject(error)
+  );
+
+
+  return instance;
+};
+
+const createBareAPI = (baseURL) => {
+  return axios.create({
+    baseURL,
+    timeout: API_TIMEOUT,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};
+
+
+/**
+ * ===============================
+ * USER SERVICES
+ * ===============================
+ */
+
+export const authAPI = createAPI(
+  API_URLS.AUTH,
+  "userToken"
 );
 
-// Interceptor to add Admin Token to product admin API
-productAdminAPI.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("adminToken");
-    if (!token) {
-      console.warn("[productAdminAPI] Missing adminToken");
-      return config;
-    }
-    config.headers = config.headers || {};
-    config.headers.Authorization = `Bearer ${token}`;
-    console.debug("[productAdminAPI] Auth header set", config.headers.Authorization);
-    return config;
-  },
-  (error) => Promise.reject(error)
+export const productAPI = createAPI(
+  API_URLS.PRODUCT,
+  "userToken"
+);
+
+export const categoryAPI = createAPI(
+  API_URLS.CATEGORY,
+  "userToken"
+);
+
+export const cartAPI = createAPI(
+  API_URLS.CART,
+  "userToken"
+);
+
+export const orderAPI = createAPI(
+  API_URLS.ORDER,
+  "userToken"
+);
+
+export const paymentAPI = createAPI(
+  API_URLS.PAYMENT,
+  "userToken"
+);
+
+
+/**
+ * ===============================
+ * ADMIN SERVICES
+ * ===============================
+ */
+
+export const adminAPI = createAPI(
+  API_URLS.AUTH,
+  "adminToken"
+);
+
+export const productAdminAPI = createAPI(
+  API_URLS.PRODUCT,
+  "adminToken"
+);
+
+export const adminRefreshAPI = createBareAPI(
+  API_URLS.AUTH
 );

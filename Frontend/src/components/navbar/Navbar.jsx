@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
+import { CartContext } from "../../context/CartContext";
 import "./Navbar.css";
 
 import { FaSearch, FaShoppingCart, FaUser } from "react-icons/fa";
@@ -8,6 +9,7 @@ import { FiLogOut } from "react-icons/fi";
 
 function Navbar() {
   const { isLoggedIn, logout } = useContext(AuthContext);
+  const { cartCount } = useContext(CartContext);
   const navigate = useNavigate();
 
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -71,8 +73,9 @@ function Navbar() {
               <FaUser /> Profile
             </Link>
 
-            <Link to="/cart" className="nav-btn">
+            <Link to="/cart" className="nav-btn cart-btn">
               <FaShoppingCart /> Cart
+              {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
 
             <button className="nav-btn logout-btn" onClick={handleLogout}>

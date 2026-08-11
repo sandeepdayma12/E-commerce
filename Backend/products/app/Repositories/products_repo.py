@@ -7,8 +7,28 @@ from app.models.models import Product
 
 UPLOAD_DIR = "static/product_images"  # store images in this folder
 
-# Ensure the directory exists
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+
+def _normalize_image_path(image_path):
+    if image_path is None:
+        return []
+    if isinstance(image_path, list):
+        return [p for p in image_path if p]
+    if isinstance(image_path, str):
+        trimmed = image_path.strip()
+        if not trimmed:
+            return []
+        try:
+            parsed = json.loads(trimmed)
+            if isinstance(parsed, list):
+                return [p for p in parsed if p]
+            if parsed:
+                return [str(parsed)]
+        except (json.JSONDecodeError, TypeError):
+            return [trimmed]
+    return []
+
 
 class ProductRepo(Base_Repo):
     def __init__(self, db):
@@ -26,13 +46,9 @@ class ProductRepo(Base_Repo):
             saved_paths.append(file_path)
         return saved_paths
 
-    # FIXED: correct parameter order (data, images, admin_id)
     def create(self, data: dict, images: List[UploadFile], admin_id: int):
-
         image_path = self._save_images(images)
-
-        # FIXED: JSON column expects list, not string
-        data["image_path"] = image_path
+        data["image_path"] = _normalize_image_path(image_path)
         data["admin_id"] = admin_id
 
         new_product = Product(**data)
@@ -52,23 +68,14 @@ class ProductRepo(Base_Repo):
         if not product:
             return None
 
-        # FIX: always convert stored data to list
-        if isinstance(product.image_path, str):
-            try:
-                existing_images = json.loads(product.image_path)
-            except:
-                existing_images = []
-        else:
-            existing_images = product.image_path or []
+        existing_images = _normalize_image_path(product.image_path)
 
-        # FIX: new images merge correctly (list + list)
         if images:
             new_images = self._save_images(images)
             data["image_path"] = existing_images + new_images
         else:
             data["image_path"] = existing_images
 
-        # Update fields
         for key, value in data.items():
             setattr(product, key, value)
 
@@ -83,5 +90,6 @@ class ProductRepo(Base_Repo):
             self.db.commit()
             return True
         return False
+
     def get_by_admin_id(self, admin_id: int):
         return self.db.query(Product).filter(Product.admin_id == admin_id).all()

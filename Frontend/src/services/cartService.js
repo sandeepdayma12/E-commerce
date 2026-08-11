@@ -13,7 +13,7 @@ const request = async (fn) => {
 
 // GET cart items
 export const getCartAPI = () =>
-  request(() => cartAPI.get("/cart"));
+  request(() => cartAPI.get("/cart/"));
 
 // ADD item
 export const addToCartAPI = (product_id, quantity = 1) =>
@@ -33,7 +33,7 @@ export const removeCartItemAPI = (product_id) =>
 
 // DELETE entire cart
 export const deleteCartAPI = () =>
-  request(() => cartAPI.delete("/cart"));
+  request(() => cartAPI.delete("/cart/"));
 
 // GET single cart item
 export const getSingleCartItemAPI = (product_id) =>

@@ -11,7 +11,7 @@ import {
   FaUser,
 } from "react-icons/fa";
 import { OrderService } from "../../../services/orderService";
-import { toProductImageUrl } from "../../../utils/image";
+import { toProductImageUrl, getProductImagePaths } from "../../../utils/image";
 import "./OrderDetails.css";
 
 const formatDate = (dateString) => {
@@ -37,8 +37,12 @@ const getOrderItems = (order) => order?.items || order?.order_items || [];
 const getItemName = (item) =>
   item?.product_name || item?.name || `Product #${item?.product_id || "—"}`;
 
-const getItemImage = (item) =>
-  item?.image_url || item?.image || item?.image_path?.[0] || "";
+const getItemImage = (item) => {
+  const direct = item?.image_url || item?.image;
+  if (direct) return direct;
+  const paths = getProductImagePaths(item?.image_path);
+  return paths.length > 0 ? paths[0] : "";
+};
 
 const getItemPrice = (item) => Number(item?.price_at_purchase || item?.price || 0);
 
@@ -73,8 +77,7 @@ export default function OrderDetails() {
     try {
       const data = await OrderService.getOrderById(orderId);
       setOrder(data || null);
-    } catch (err) {
-      console.error("Failed to fetch order:", err);
+    } catch {
       setErrorMsg("Unable to load order details. Please try again.");
     } finally {
       setLoading(false);

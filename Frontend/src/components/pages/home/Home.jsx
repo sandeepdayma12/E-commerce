@@ -7,7 +7,7 @@ import { CartContext } from "../../../context/CartContext";
 import { AuthContext } from "../../../context/AuthContext";
 import { ToastContext } from "../../../context/ToastContext";
 import { useNavigate } from "react-router-dom";
-import { toProductImageUrl } from "../../../utils/image";
+import { toProductImageUrl, getProductImagePaths } from "../../../utils/image";
 
 function Home() {
   const { products, loading } = useContext(ProductContext);
@@ -26,17 +26,20 @@ function Home() {
     (typeof product.category === "string" ? product.category : "") ||
     (product.category_id ? `Category ${product.category_id}` : "Uncategorized");
 
-  const transformedProducts = useMemo(() => products.map((p) => ({
-    id: p.id,
-    title: p.name,
-    price: p.price,
-    category: getCategoryName(p),
-    img: p.image_path?.[0]
-      ? toProductImageUrl(p.image_path[0])
-      : "/placeholder.png",
-    description: p.description,
-    stock: p.quantity,
-  })), [products]);
+  const transformedProducts = useMemo(() => products.map((p) => {
+    const imagePaths = getProductImagePaths(p.image_path);
+    return {
+      id: p.id,
+      title: p.name,
+      price: p.price,
+      category: getCategoryName(p),
+      img: imagePaths.length > 0
+        ? toProductImageUrl(imagePaths[0])
+        : "/placeholder.png",
+      description: p.description,
+      stock: p.quantity,
+    };
+  }), [products]);
 
   useEffect(() => {
     if (loading) return;

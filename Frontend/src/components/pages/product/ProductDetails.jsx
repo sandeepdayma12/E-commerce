@@ -4,7 +4,7 @@ import { ProductContext } from "../../../context/ProductContext";
 import { CartContext } from "../../../context/CartContext";
 import { AuthContext } from "../../../context/AuthContext";
 import { ToastContext } from "../../../context/ToastContext";
-import { toProductImageUrl } from "../../../utils/image";
+import { toProductImageUrl, getProductImagePaths } from "../../../utils/image";
 import "./ProductDetails.css";
 
 export default function ProductDetails() {
@@ -25,7 +25,7 @@ export default function ProductDetails() {
 
   if (!product) return <h2 className="not-found">Product Not Found 😕</h2>;
 
-  const imagePaths = Array.isArray(product.image_path) ? product.image_path : [];
+  const imagePaths = getProductImagePaths(product.image_path);
   const images =
     imagePaths.length > 0
       ? imagePaths.map((img) => toProductImageUrl(img))
@@ -53,7 +53,7 @@ export default function ProductDetails() {
     }
 
     addToCart(product.id, quantity);
-    navigate("/cart");
+    navigate("/checkout");
   };
 
   // Quantity increment/decrement

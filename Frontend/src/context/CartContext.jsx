@@ -5,6 +5,7 @@ import React, {
   useRef,
   useCallback,
   useContext,
+  useMemo,
 } from "react";
 
 import {
@@ -18,7 +19,7 @@ import {
 import { ToastContext } from "./ToastContext";
 import { AuthContext } from "./AuthContext";
 import { getProductByIdAPI } from "../api/product/product.api";
-import { productAPI } from "../api/instances";
+import { toProductImageUrl, getProductImagePaths } from "../utils/image";
 
 export const CartContext = createContext();
 
@@ -31,8 +32,6 @@ export const CartProvider = ({ children }) => {
 
   const productCache = useRef({});
 
-  const BASE_IMAGE_URL = productAPI.defaults.baseURL;
-
   const fetchProductDetails = useCallback(async (product_id) => {
     if (productCache.current[product_id]) {
       return productCache.current[product_id];
@@ -44,8 +43,7 @@ export const CartProvider = ({ children }) => {
 
       productCache.current[product_id] = product;
       return product;
-    } catch (err) {
-      console.error("Product fetch failed:", err);
+    } catch {
       return null;
     }
   }, []);
@@ -59,15 +57,9 @@ export const CartProvider = ({ children }) => {
         items.map(async (item) => {
           const product = await fetchProductDetails(item.product_id);
 
-          let imageList = [];
-          try {
-            imageList = JSON.parse(product?.image_path || "[]");
-          } catch {
-            imageList = [];
-          }
-
-          const img = imageList.length
-            ? `${BASE_IMAGE_URL}/${imageList[0].replace(/^\/+/, "")}`
+          const imagePaths = getProductImagePaths(product?.image_path);
+          const img = imagePaths.length > 0
+            ? toProductImageUrl(imagePaths[0])
             : "/placeholder.png";
 
           return {
@@ -84,12 +76,12 @@ export const CartProvider = ({ children }) => {
       merged.sort((a, b) => a.id - b.id);
       setCart(merged);
 
-    } catch (err) {
-      console.error("Cart load error:", err);
+    } catch {
+      // Cart load error handled by context state
     } finally {
       setLoading(false);
     }
-  }, [fetchProductDetails, BASE_IMAGE_URL]);
+  }, [fetchProductDetails]);
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -122,8 +114,8 @@ export const CartProvider = ({ children }) => {
         await addToCartAPI(product_id, qty);
         showToast("Added to cart!");
         fetchCart();
-      } catch (e) {
-        console.error("addToCart error:", e);
+      } catch {
+        // Add to cart error handled by toast
       }
     },
     [cart, fetchCart, showToast]
@@ -144,8 +136,8 @@ export const CartProvider = ({ children }) => {
       try {
         await updateCartItemAPI(product_id, qty);
         fetchCart();
-      } catch (e) {
-        console.error("Update qty error:", e);
+      } catch {
+        // Update qty error handled by context state
       }
     },
     [cart, fetchCart, showToast]
@@ -156,8 +148,8 @@ export const CartProvider = ({ children }) => {
       try {
         await removeCartItemAPI(product_id);
         fetchCart();
-      } catch (e) {
-        console.error("Remove error:", e);
+      } catch {
+        // Remove error handled by context state
       }
     },
     [fetchCart]
@@ -167,16 +159,22 @@ export const CartProvider = ({ children }) => {
     try {
       await deleteCartAPI();
       setCart([]);
-    } catch (e) {
-      console.error("Clear cart error:", e);
+    } catch {
+      // Clear cart error handled by context state
     }
   }, []);
+
+  const cartCount = useMemo(
+    () => cart.reduce((sum, item) => sum + item.qty, 0),
+    [cart]
+  );
 
   return (
     <CartContext.Provider
       value={{
         cart,
         loading,
+        cartCount,
         addToCart,
         updateQty,
         removeFromCart,

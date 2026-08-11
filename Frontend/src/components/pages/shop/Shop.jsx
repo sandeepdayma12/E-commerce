@@ -5,7 +5,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import { ProductContext } from "../../../context/ProductContext";
 import { CartContext } from "../../../context/CartContext";
 import { ToastContext } from "../../../context/ToastContext";
-import { toProductImageUrl } from "../../../utils/image";
+import { toProductImageUrl, getProductImagePaths } from "../../../utils/image";
 
 import { useNavigate, Link, useLocation } from "react-router-dom";
 
@@ -54,17 +54,20 @@ function Shop() {
 
   /*DATA TRANSFORMATION*/
   const transformedProducts = useMemo(() => {
-    return products.map((p) => ({
-      id: p.id,
-      title: p.name,
-      price: p.price,
-      category: getCategoryName(p),
-      img: p.image_path?.[0]
-        ? toProductImageUrl(p.image_path[0])
-        : "/placeholder.png",
-      description: p.description,
-      stock: p.quantity,
-    }));
+    return products.map((p) => {
+      const imagePaths = getProductImagePaths(p.image_path);
+      return {
+        id: p.id,
+        title: p.name,
+        price: p.price,
+        category: getCategoryName(p),
+        img: imagePaths.length > 0
+          ? toProductImageUrl(imagePaths[0])
+          : "/placeholder.png",
+        description: p.description,
+        stock: p.quantity,
+      };
+    });
   }, [products]);
 
   /*CATEGORY LIST*/

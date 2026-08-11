@@ -6,7 +6,7 @@ import {
   getProductsByAdminService,
   deleteProductService,
 } from "../../../../services/product.service";
-import { toProductImageUrl } from "../../../../utils/image";
+import { toProductImageUrl, getProductImagePaths } from "../../../../utils/image";
 
 function ProductList() {
   const [products, setProducts] = useState([]);
@@ -22,8 +22,7 @@ function ProductList() {
     try {
       const data = await getProductsByAdminService();
       setProducts(data || []);
-    } catch (err) {
-      console.log("Failed to load products:", err);
+    } catch {
       setStatus({ type: "error", message: "Failed to load products." });
     } finally {
       setLoading(false);
@@ -43,7 +42,6 @@ function ProductList() {
       setStatus({ type: "success", message: "Product deleted successfully." });
       loadProducts();
     } catch (err) {
-      console.log("Delete Error:", err);
       setStatus({
         type: "error",
         message: err.response?.data?.message || "Failed to delete product.",
@@ -92,9 +90,12 @@ function ProductList() {
               <td>
                 <img
                   src={
-                    p.image_path?.[0]
-                      ? toProductImageUrl(p.image_path[0])
-                      : "/placeholder.png"
+                    (() => {
+                      const paths = getProductImagePaths(p.image_path);
+                      return paths.length > 0
+                        ? toProductImageUrl(paths[0])
+                        : "/placeholder.png";
+                    })()
                   }
                   alt={p.name || "Product"}
                   className="product-img"

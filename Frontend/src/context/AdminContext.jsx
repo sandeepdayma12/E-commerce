@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react'
-import { adminAPI } from "../api/instances";
+import { adminAPI, adminRefreshAPI } from "../api/instances";
 
 export const AdminContext = createContext()
 
@@ -14,15 +14,14 @@ export const AdminProvider = ({ children }) => {
   const refreshAdminToken = useCallback(async () => {
     try {
       const refreshToken = localStorage.getItem("adminToken");
-      const res = await adminAPI.post("/token/refresh", {
+      const res = await adminRefreshAPI.post("/token/refresh", {
         refresh_token: refreshToken,
       });
       const newToken = res.data?.access_token;
       if (!newToken) return null;
       localStorage.setItem("adminToken", newToken);
       return newToken;
-    } catch (err) {
-      console.error("Admin token refresh failed:", err);
+    } catch {
       return null;
     }
   }, []);
@@ -40,16 +39,14 @@ export const AdminProvider = ({ children }) => {
       const res = await adminAPI.get("/api/admin_profile")
       setAdmin(res.data)
       setIsAdminLoggedIn(true)
-    } catch (err) {
-      console.error("Admin profile fetch failed:", err)
+    } catch {
       const refreshed = await refreshAdminToken()
       if (refreshed) {
         try {
           const res = await adminAPI.get("/api/admin_profile")
           setAdmin(res.data)
           setIsAdminLoggedIn(true)
-        } catch (retryErr) {
-          console.error("Admin profile retry failed:", retryErr)
+        } catch {
           localStorage.removeItem('adminToken')
           setAdmin(null)
           setIsAdminLoggedIn(false)

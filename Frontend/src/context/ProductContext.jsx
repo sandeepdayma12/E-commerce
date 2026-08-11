@@ -28,8 +28,8 @@ export function ProductProvider({ children }) {
 
         setProducts(productList);
         setCachedValue(PRODUCTS_CACHE_KEY, productList);
-      } catch (error) {
-        console.log("Product Load Error:", error);
+      } catch {
+        // Silently fail; cached products may still be available
       } finally {
         if (isMounted) {
           setLoading(false);

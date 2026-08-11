@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import './Contact.css'
+import { contactService } from '../../../services/contact.service';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -9,16 +10,23 @@ export default function Contact() {
   })
 
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
+    setError('')
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Message Sent:', formData)
-    setSubmitted(true)
-    setFormData({ name: '', email: '', message: '' })
+
+    try {
+      await contactService.sendMessage(formData)
+      setSubmitted(true)
+      setFormData({ name: '', email: '', message: '' })
+    } catch {
+      setError('Failed to send message. Please try again later.')
+    }
   }
 
   return (
@@ -34,6 +42,7 @@ export default function Contact() {
         <div className="contact-content">
           {/* Contact Form */}
           <div className="contact-form">
+            {error && <p className="error-text">{error}</p>}
             {submitted ? (
               <div className="thank-you">
                 <h3>✅ Thank you for reaching out!</h3>

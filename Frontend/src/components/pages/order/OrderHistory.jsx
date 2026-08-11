@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaBoxOpen, FaCalendarAlt, FaChevronRight, FaReceipt, FaShoppingBag } from "react-icons/fa";
 import { AuthContext } from "../../../context/AuthContext";
 import { OrderService } from "../../../services/orderService";
-import { toProductImageUrl } from "../../../utils/image";
+import { toProductImageUrl, getProductImagePaths } from "../../../utils/image";
 import "./OrderHistory.css";
 
 const formatDate = (dateString) => {
@@ -24,8 +24,12 @@ const formatCurrency = (value) =>
 
 const getOrderItems = (order) => order?.items || order?.order_items || [];
 
-const getItemImage = (item) =>
-  item?.image_url || item?.image || item?.image_path?.[0] || "";
+const getItemImage = (item) => {
+  const direct = item?.image_url || item?.image;
+  if (direct) return direct;
+  const paths = getProductImagePaths(item?.image_path);
+  return paths.length > 0 ? paths[0] : "";
+};
 
 const getItemName = (item) =>
   item?.product_name || item?.name || `Product #${item?.product_id || "—"}`;
@@ -46,8 +50,7 @@ export default function OrderHistory() {
       try {
         const data = await OrderService.getUserOrders();
         setOrders(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error("Order fetch failed:", err);
+      } catch {
         setErrorMsg("Unable to load your orders right now.");
       } finally {
         setLoading(false);

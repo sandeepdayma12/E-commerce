@@ -20,9 +20,8 @@ function Dashboard() {
         ]);
         setStats(statsRes);
         setRecentOrders(ordersRes.slice(0, 5)); // Top 5 recent
-      } catch (err) {
+      } catch {
         setError('Failed to load dashboard data');
-        console.error(err);
       } finally {
         setLoading(false);
       }

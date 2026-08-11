@@ -1,15 +1,30 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useRef, useEffect } from "react";
 
 export const ToastContext = createContext();
 
 export function ToastProvider({ children }) {
     const [toast, setToast] = useState(null);
+    const timeoutRef = useRef(null);
+
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, []);
 
     const showToast = (msg) => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+
         setToast(msg);
 
-        // Auto hide in 2 seconds
-        setTimeout(() => setToast(null), 2000);
+        timeoutRef.current = setTimeout(() => {
+            setToast(null);
+            timeoutRef.current = null;
+        }, 2000);
     };
 
     return (

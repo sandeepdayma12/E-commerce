@@ -72,3 +72,6 @@ class order_repository:
             })
             
         return results
+
+    def get_recent_orders(self) -> List[Order]:
+        return self.db.query(Order).options(joinedload(Order.order_items)).order_by(Order.created_at.desc()).limit(20).all()

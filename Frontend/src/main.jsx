@@ -6,11 +6,14 @@ import App from './App.jsx'
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import AppContextProvider from "./context/AppContextProvider.jsx";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <AppContextProvider>
-    <App />
-  </AppContextProvider>
+    <ErrorBoundary>
+      <AppContextProvider>
+      <App />
+    </AppContextProvider>
+    </ErrorBoundary>
   </StrictMode>,
 )

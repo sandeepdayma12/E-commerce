@@ -13,6 +13,13 @@ router = APIRouter(prefix="/orders", tags=["Orders"])
 def get_order_service(db: Session = Depends(get_db)):
     return Order_Service(db)
 
+@router.get("/admin/orders/recent", response_model=List[OrderResponse])
+def get_recent_orders(
+    service: Order_Service = Depends(get_order_service),
+    admin_id: int = Depends(get_current_admin_id),
+):
+    return service.get_recent_orders()
+
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=OrderResponse)
 def create_order(
     order_data: OrderCreateRequest,
