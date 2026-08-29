@@ -11,28 +11,21 @@ Base.metadata.create_all(bind=engine)
 
 load_dotenv()
 
-print("Creating database tables...")
-
-print("Database tables created successfully.")
-
 app = FastAPI(
     title="E-commerce Cart Service",
 )
 
-origins = ["*"]
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 app.include_router(router)
-# router = APIRouter(prefix="/cart")
-Base.metadata.create_all(bind=engine)
-
 
 
 @app.get("/", tags=["Health Check"])

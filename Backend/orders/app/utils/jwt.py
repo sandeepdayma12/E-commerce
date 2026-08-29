@@ -3,9 +3,10 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
+import os
 
 # ---------- CONFIG ----------
-SECRET_KEY = "a_super_secret_key_that_must_be_identical_in_all_services"
+SECRET_KEY = os.getenv("SECRET_KEY", "change-me")
 ALGORITHM = "HS256"
 
 

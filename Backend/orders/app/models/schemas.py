@@ -38,6 +38,8 @@ class OrderItemResponse(BaseModel):
     quantity: int
     product_name: str
     price_at_purchase: Money
+    image_url: Optional[str] = None
+    admin_id: Optional[int] = None
 
     model_config = {
         "from_attributes": True
@@ -48,7 +50,13 @@ class OrderResponse(BaseModel):
     user_id: int
     status: OrderStatus
     total_amount:float
+    shipping_method: Optional[str] = None
+    tracking_number: Optional[str] = None
+    shipping_address: Optional[Address] = None
+    billing_address: Optional[Address] = None
+    payment_details: Optional[dict] = None
     created_at: datetime
+    updated_at: Optional[datetime] = None
     items: List[OrderItemResponse]
 
     model_config = {

@@ -12,6 +12,11 @@ class PaymentService:
         self.repo = Payment_Repo(db)
 
     def create_payment_intent(self, payment_data: schemas.Paymentintentcreate) -> dict:
+        if not stripe.api_key:
+            raise ValueError("STRIPE_SECRET_KEY is not set")
+        if stripe.api_key.startswith("pk_"):
+            raise ValueError("STRIPE_SECRET_KEY is a publishable key (pk_*). Use a secret key (sk_*).")
+
         existing_payment = self.repo.get_by_payment(order_id=payment_data.order_id)
         
         amount_in_cents = int(payment_data.amount * 100)

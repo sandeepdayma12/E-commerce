@@ -153,3 +153,6 @@ class Order_Service:
             "period_end": end_date,
             "analytics": analytics_data
         }
+
+    def get_recent_orders(self) -> List[models.Order]:
+        return self.repo.get_recent_orders()

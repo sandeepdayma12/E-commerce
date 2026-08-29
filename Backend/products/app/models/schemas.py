@@ -56,7 +56,7 @@ class ProductResponse(ProductBase):
     id: int
     admin_id: int
     image_path: Optional[List[str]]
+    category: Optional[CategoryResponse] = None
 
     class Config:
         orm_mode = True
-

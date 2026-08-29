@@ -1,0 +1,18 @@
+version: '3.3'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: dockerfile
+      args:
+        VITE_AUTH_URL: ${VITE_AUTH_URL:-http://localhost:8001/}
+        VITE_CART_URL: ${VITE_CART_URL:-http://localhost:8002/}
+        VITE_ORDER_URL: ${VITE_ORDER_URL:-http://localhost:8003/}
+        VITE_PAYMENT_URL: ${VITE_PAYMENT_URL:-http://localhost:8004/}
+        VITE_PRODUCT_URL: ${VITE_PRODUCT_URL:-http://localhost:18005/}
+        VITE_CATEGORY_URL: ${VITE_CATEGORY_URL:-http://localhost:18005/categories/api}
+        VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY:-}
+    ports:
+      - "3000:80"
+    restart: always

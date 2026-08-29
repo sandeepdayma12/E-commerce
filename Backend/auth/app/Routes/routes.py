@@ -20,6 +20,7 @@ from app.models.schemas import (
 from app.services.user_service import user_service
 from app.services.admin_service import Adminservice
 from app.utils.jwt import get_current_user, verify_token
+import os
 
 router = APIRouter()
 
@@ -29,7 +30,6 @@ router = APIRouter()
 def register_user(payload: Users, db: Session = Depends(get_db)):
     svc = user_service(db)
     result = svc.register(payload.dict())
-    print("Received payload:", payload.dict())
 
     # If the service returns an error message
     if "message" in result and "exists" in result["message"].lower():
@@ -70,7 +70,7 @@ def login_user(
     Handles user login using form data from Swagger UI.
     """
     svc = user_service(db)
-   
+    
     # IMPORTANT: The service layer expects a parameter named 'email'.
     # So, we pass the 'username' variable to the 'email' parameter.
     result = svc.login(email=username, password=password)
@@ -110,6 +110,35 @@ def user_profile(
         Mobile_Number=user.Mobile_Number,
     )
 
+@router.put("/user/update/{user_id}", response_model=UserResponse)
+def update_user_profile(
+    user_id: int,
+    payload: Users,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    if int(current_user["sub"]) != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to update this profile.",
+        )
+
+    repo = user_repository(db)
+    updated_user = repo.update_user(user_id, payload.dict())
+
+    if not updated_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found.",
+        )
+
+    return UserResponse(
+        id=updated_user.id,
+        name=updated_user.name,
+        Email=updated_user.Email,
+        Mobile_Number=updated_user.Mobile_Number,
+    )
+
 
 # ---------------- ADMIN PROFILE ----------------
 @router.get("/api/admin_profile", response_model=AdminResponse)
@@ -132,53 +161,15 @@ def admin_profile(
         GST_Number=admin.GST_Number,
         is_superuser=admin.is_superuser,
     )
-@router.post("/debug/decode-token", tags=["Debugging"])
-def decode_token_endpoint(token: str):
-    payload = verify_token(token)
-    
-    # If verify_token succeeds, just return the payload
-    return payload
-@router.put("/user/update/{user_id}", response_model=UserResponse)
-def update_user_profile(
-    user_id: int,
-    payload: Users,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
-):
-    # FIX: Convert token ID to int
-    if int(current_user["sub"]) != user_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You are not authorized to update this profile.",
-        )
 
-    repo = user_repository(db)
-    
-    # Best Practice: Exclude 'id' or 'email' if they shouldn't change
-    # payload.dict(exclude_unset=True) is safer
-    updated_user = repo.update_user(user_id, payload.dict())
-
-    if not updated_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found.",
-        )
-
-    return UserResponse(
-        id=updated_user.id,
-        name=updated_user.name,
-        Email=updated_user.Email,
-        Mobile_Number=updated_user.Mobile_Number,
-    )
-# ---------------- ADMIN UPDATE PROFILE ----------------
 @router.put("/admin/update/{admin_id}", response_model=AdminResponse)
-def update_admin_profile(       
+def update_admin_profile(
     admin_id: int,
     payload: Admins,
     db: Session = Depends(get_db),
     current_admin: dict = Depends(get_current_user),
 ):
-    if current_admin["sub"] != admin_id:
+    if int(current_admin["sub"]) != admin_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not authorized to update this profile.",
@@ -202,6 +193,17 @@ def update_admin_profile(
         GST_Number=updated_admin.GST_Number,
         is_superuser=updated_admin.is_superuser,
     )
+
+
+@router.post("/api/contact")
+def contact_us(payload: dict, db: Session = Depends(get_db)):
+    name = payload.get("name", "")
+    email = payload.get("email", "")
+    message = payload.get("message", "")
+    if not name or not email or not message:
+        raise HTTPException(status_code=400, detail="All fields are required.")
+    return {"message": "Contact message received. We will get back to you soon."}
+
 # ---------------- TOKEN REFRESH ----------------
 @router.post("/token/refresh", response_model=TokenResponse)
 def refresh_token(
@@ -215,6 +217,7 @@ def refresh_token(
         raise HTTPException(status_code=400, detail=result["error"])
 
     return result
+
 # @router.post("/admin/token/refresh", response_model=TokenResponse)
 # def refresh_admin_token( 
 #     current_admin: dict = Depends(verify_token),
@@ -227,12 +230,14 @@ def refresh_token(
 #         raise HTTPException(status_code=400, detail=result["error"])
 
 #     return result
+
 @router.get("/protected")
 def protected_route(current_user: dict = Depends(get_current_user)):
     return {
         "message": "You are authorized",
         "user": current_user
     }
+
 @router.get('/login/google')
 async def login_google(request: Request):
     # This generates the Google login URL and redirects the user
@@ -273,9 +278,7 @@ async def auth_google_callback(request: Request, db: Session = Depends(get_db)):
         jwt_token = create_access_token(data={"sub": str(user.id)})
 
         # 4. Redirect to your frontend dashboard with the token
-        frontend_url = f"http://localhost:3000/login-success?token={jwt_token}"
+        frontend_url = f"{os.getenv('FRONTEND_URL', 'http://localhost:5173')}/login-success?token={jwt_token}"
         return RedirectResponse(url=frontend_url)
     except Exception as e:
         return {"error": str(e)}
-
- 

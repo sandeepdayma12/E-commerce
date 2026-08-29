@@ -2,9 +2,10 @@ from datetime import timedelta, datetime
 from jose import JWTError, jwt
 from fastapi import HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import os
 
 # ---------- CONFIG ----------
-SECRET_KEY = "a_super_secret_key_that_must_be_identical_in_all_services"
+SECRET_KEY = os.getenv("SECRET_KEY", "change-me")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

@@ -71,3 +71,4 @@ logs/
 *.pid
 *.sock
 docker-compose.override.yml
+PROJECT_AUDIT_FULL_REPORT.md

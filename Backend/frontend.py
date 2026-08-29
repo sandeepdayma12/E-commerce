@@ -7,12 +7,12 @@ from jose import jwt, JWTError
 # ====================================================================
 # CONFIGURATION
 # ====================================================================
-AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "http://127.0.0.1:8000")
-PRODUCT_SERVICE_URL = os.getenv("PRODUCT_SERVICE_URL", "http://192.168.29.249:8001")
-CART_SERVICE_URL = os.getenv("CART_SERVICE_URL", "http://127.0.0.1:8002")
+AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "http://localhost:8001")
+PRODUCT_SERVICE_URL = os.getenv("PRODUCT_SERVICE_URL", "http://localhost:18005")
+CART_SERVICE_URL = os.getenv("CART_SERVICE_URL", "http://localhost:8002")
 
 # We need the secret key to decode the token locally to check the role
-SECRET_KEY = os.getenv("SECRET_KEY", "a_super_secret_key_that_must_be_identical_in_all_services")
+SECRET_KEY = os.getenv("SECRET_KEY", "change-me")
 
 # ====================================================================
 # SESSION STATE INITIALIZATION
